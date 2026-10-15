@@ -74,13 +74,11 @@ export default function MiniMap({ points, path, height = 190, label }: Props) {
     window.setTimeout(() => map.invalidateSize(), 80);
   }, [points, path, label]);
 
-  if (!points.length) return null;
-
   return (
     <div
       ref={host}
       className="mini-map"
-      style={{ height }}
+      style={{ height, display: points.length ? 'block' : 'none' }}
       role="img"
       aria-label={label}
     />

@@ -15,27 +15,46 @@ type Props = {
 
 type Place = { lat: number; lng: number; displayName: string };
 
+export type PlaceSuggestion = Place & AddressParts;
+
 const emptyAddress: AddressParts = { street: '', city: '', state: 'GA', zip: '' };
 
 function useGeocodedPlace(parts: AddressParts) {
   const [place, setPlace] = useState<Place | null>(null);
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [looking, setLooking] = useState(false);
+  const [error, setError] = useState('');
+  const [note, setNote] = useState('');
 
   useEffect(() => {
     if (!addressReady(parts)) {
       setPlace(null);
+      setSuggestions([]);
+      setError('');
+      setNote('');
       return;
     }
     const handle = window.setTimeout(async () => {
       setLooking(true);
+      setError('');
+      setNote('');
       try {
-        const data = await api<{ place: Place }>('/api/geo/lookup', {
+        const data = await api<{
+          place: Place | null;
+          suggestions?: PlaceSuggestion[];
+          message?: string | null;
+        }>('/api/geo/lookup', {
           method: 'POST',
           body: JSON.stringify(parts),
         });
         setPlace(data.place);
-      } catch {
+        setSuggestions(data.suggestions || []);
+        setError(data.place ? '' : data.message || 'No location found');
+        setNote(data.place ? data.message || '' : '');
+      } catch (err) {
         setPlace(null);
+        setSuggestions([]);
+        setError(err instanceof Error ? err.message : 'Could not place that address on the map');
       } finally {
         setLooking(false);
       }
@@ -43,7 +62,31 @@ function useGeocodedPlace(parts: AddressParts) {
     return () => window.clearTimeout(handle);
   }, [parts.street, parts.city, parts.state, parts.zip]);
 
-  return { place, looking };
+  return { place, suggestions, looking, error, note };
+}
+
+function SuggestionList({
+  items,
+  onPick,
+}: {
+  items: PlaceSuggestion[];
+  onPick: (item: PlaceSuggestion) => void;
+}) {
+  if (!items.length) return null;
+  return (
+    <div className="suggest-box">
+      <p className="muted">Did you mean:</p>
+      <ul className="suggest-list">
+        {items.map((item) => (
+          <li key={`${item.lat},${item.lng},${item.displayName}`}>
+            <button type="button" onClick={() => onPick(item)}>
+              {item.displayName}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default function Calculator({ defaultService = 'scheduled' }: Props) {
@@ -208,14 +251,40 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
           }
         />
         {pickupGeo.looking && <p className="muted">Finding pickup on the map…</p>}
-        {pickupGeo.place && (
-          <MiniMap points={pickupPoint} label="Pickup location map" />
+        {pickupGeo.error && <p className="error">{pickupGeo.error}</p>}
+        {pickupGeo.note && <p className="muted">{pickupGeo.note}</p>}
+        {(!pickupGeo.place || pickupGeo.note) && (
+        <SuggestionList
+          items={pickupGeo.suggestions}
+          onPick={(item) =>
+            setPickup({
+              street: item.street || pickup.street,
+              city: item.city || pickup.city,
+              state: item.state || pickup.state,
+              zip: item.zip || pickup.zip,
+            })
+          }
+        />
         )}
+        <MiniMap points={pickupPoint} label="Pickup location map" />
         <AddressFields id="dropoff" title="Drop-off location" value={dropoff} onChange={setDropoff} />
         {dropoffGeo.looking && <p className="muted">Finding drop-off on the map…</p>}
-        {dropoffGeo.place && (
-          <MiniMap points={dropoffPoint} label="Drop-off location map" />
+        {dropoffGeo.error && <p className="error">{dropoffGeo.error}</p>}
+        {dropoffGeo.note && <p className="muted">{dropoffGeo.note}</p>}
+        {(!dropoffGeo.place || dropoffGeo.note) && (
+        <SuggestionList
+          items={dropoffGeo.suggestions}
+          onPick={(item) =>
+            setDropoff({
+              street: item.street || dropoff.street,
+              city: item.city || dropoff.city,
+              state: item.state || dropoff.state,
+              zip: item.zip || dropoff.zip,
+            })
+          }
+        />
         )}
+        <MiniMap points={dropoffPoint} label="Drop-off location map" />
         <div className="inline-fields">
           <label>
             Year
