@@ -1,4 +1,4 @@
-const fallbackApi = import.meta.env.PROD ? 'https://mikes-bikes-backend.onrender.com' : '';
+const fallbackApi = import.meta.env.PROD ? 'https://mikes-bikes-backend-1.onrender.com' : '';
 export const API = String(import.meta.env.VITE_API_URL || fallbackApi).replace(/\/$/, '');
 
 export function mediaUrl(path: string) {
