@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mediaUrl } from '../api';
 import type { GalleryItem } from '../types';
 
 type Props = {
@@ -33,7 +34,7 @@ export default function MediaStage({ items, className = '', intervalMs = 8000 }:
       {current.kind === 'video' ? (
         <video
           key={current._id}
-          src={current.url}
+          src={mediaUrl(current.url)}
           autoPlay
           muted
           playsInline
@@ -41,7 +42,7 @@ export default function MediaStage({ items, className = '', intervalMs = 8000 }:
           onEnded={items.length > 1 ? next : undefined}
         />
       ) : (
-        <img key={current._id} src={current.url} alt="" />
+        <img key={current._id} src={mediaUrl(current.url)} alt="" />
       )}
     </div>
   );

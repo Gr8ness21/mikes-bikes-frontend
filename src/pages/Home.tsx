@@ -4,6 +4,7 @@ import Calculator from '../components/Calculator';
 import MediaStage from '../components/MediaStage';
 import EmergencyModal from '../components/EmergencyModal';
 import PartnerModal from '../components/PartnerModal';
+import { mediaUrl } from '../api';
 import { useGallery } from '../hooks/useGallery';
 
 export default function Home() {
@@ -45,10 +46,10 @@ export default function Home() {
         <Calculator />
         <div className="card">
           {cover?.kind === 'video' ? (
-            <video src={cover.url} muted playsInline autoPlay loop />
+            <video src={mediaUrl(cover.url)} muted playsInline autoPlay loop />
           ) : (
             <img
-              src={cover?.url || '/brand/card-back.jpg'}
+              src={cover?.url ? mediaUrl(cover.url) : '/brand/card-back.jpg'}
               alt={cover?.alt || "We'll Come Get You — Mike's Bikes"}
             />
           )}

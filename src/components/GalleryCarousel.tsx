@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mediaUrl } from '../api';
 import type { GalleryItem } from '../types';
 
 type Props = {
@@ -53,7 +54,7 @@ export default function GalleryCarousel({ items }: Props) {
         {current.kind === 'video' ? (
           <video
             key={current._id}
-            src={current.url}
+            src={mediaUrl(current.url)}
             autoPlay
             muted
             playsInline
@@ -65,7 +66,7 @@ export default function GalleryCarousel({ items }: Props) {
           <div
             key={current._id}
             className="gallery-parallax-still"
-            style={{ backgroundImage: `url(${current.url})` }}
+            style={{ backgroundImage: `url(${mediaUrl(current.url)})` }}
           />
         )}
       </div>
@@ -107,7 +108,7 @@ export default function GalleryCarousel({ items }: Props) {
         onClick={() => setLightbox(false)}
       >
         <figure className="lightbox-figure" onClick={(e) => e.stopPropagation()}>
-          <img src={current.url} alt={caption} />
+          <img src={mediaUrl(current.url)} alt={caption} />
           <figcaption>{caption}</figcaption>
           <button type="button" className="btn btn-ghost" onClick={() => setLightbox(false)}>
             Close

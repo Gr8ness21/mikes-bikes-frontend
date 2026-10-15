@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api';
+import { api, mediaUrl } from '../api';
 import type { GalleryItem } from '../types';
 
 type Props = {
@@ -119,9 +119,9 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
         {items.map((item, index) => (
           <li key={item._id} className="gallery-admin-row">
             {item.kind === 'video' ? (
-              <video src={item.url} muted playsInline />
+              <video src={mediaUrl(item.url)} muted playsInline />
             ) : (
-              <img src={item.url} alt={item.alt || item.originalName} />
+              <img src={mediaUrl(item.url)} alt={item.alt || item.originalName} />
             )}
             <div>
               <strong>{item.originalName}</strong>
