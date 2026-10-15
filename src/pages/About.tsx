@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api';
+import GalleryCarousel from '../components/GalleryCarousel';
+import PartnerForm from '../components/PartnerForm';
+import { useGallery } from '../hooks/useGallery';
 
 const reviews = [
   {
@@ -17,32 +19,14 @@ const reviews = [
 ];
 
 export default function About() {
-  const [form, setForm] = useState({
-    organization: '',
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
   const [msg, setMsg] = useState('');
   const [i, setI] = useState(0);
+  const aboutMedia = useGallery('about');
 
   useEffect(() => {
     const t = window.setInterval(() => setI((n) => (n + 1) % reviews.length), 6000);
     return () => window.clearInterval(t);
   }, []);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setMsg('');
-    try {
-      await api('/api/contact', { method: 'POST', body: JSON.stringify(form) });
-      setMsg('Message sent. We will reach out soon.');
-      setForm({ organization: '', name: '', email: '', phone: '', message: '' });
-    } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Could not send');
-    }
-  }
 
   return (
     <section className="section">
@@ -64,75 +48,41 @@ export default function About() {
         <div className="card slideshow">
           <h2>Riders we've served</h2>
           <div className="slides">
-            <img
-              src={i % 2 === 0 ? '/brand/card-front.jpg' : '/brand/card-back.jpg'}
-              alt="Customer transport"
-            />
             <blockquote>
               <p>“{reviews[i].quote}”</p>
               <p className="muted">— {reviews[i].name}</p>
             </blockquote>
           </div>
-          <button
-            className="btn btn-ghost"
-            onClick={() => setI((n) => (n + 1) % reviews.length)}
-          >
+          <button className="btn btn-ghost" onClick={() => setI((n) => (n + 1) % reviews.length)}>
             Next review
           </button>
         </div>
       </div>
+      <GalleryCarousel
+        items={
+          aboutMedia.length
+            ? aboutMedia
+            : [
+                {
+                  _id: 'fallback',
+                  url: '/brand/card-front.jpg',
+                  originalName: 'brand',
+                  kind: 'image',
+                  alt: "Mike's Bikes",
+                  showOnHome: true,
+                  showOnAbout: true,
+                  order: 0,
+                },
+              ]
+        }
+      />
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h2>Partner with us</h2>
         <p className="muted">Shops, clubs, and fleets looking for a transport partner — send a note.</p>
-        <form className="form" onSubmit={submit} style={{ marginTop: '1rem' }}>
-          <div className="inline-fields">
-            <label>
-              Organization
-              <input
-                required
-                value={form.organization}
-                onChange={(e) => setForm({ ...form, organization: e.target.value })}
-              />
-            </label>
-            <label>
-              Your name
-              <input
-                required
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </label>
-          </div>
-          <div className="inline-fields">
-            <label>
-              Email
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </label>
-            <label>
-              Phone
-              <input
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              />
-            </label>
-          </div>
-          <label>
-            Message
-            <textarea
-              required
-              rows={4}
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-            />
-          </label>
-          {msg && <p className={msg.startsWith('Message') ? 'success' : 'error'}>{msg}</p>}
-          <button className="btn btn-primary">Send</button>
-        </form>
+        {msg && <p className="success">{msg}</p>}
+        <div style={{ marginTop: '1rem' }}>
+          <PartnerForm onSuccess={() => setMsg('Message sent. We will reach out soon.')} />
+        </div>
       </div>
     </section>
   );

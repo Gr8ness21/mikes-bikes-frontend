@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom';
 import AtlantaPromo from '../components/AtlantaPromo';
 import Calculator from '../components/Calculator';
+import MediaStage from '../components/MediaStage';
+import EmergencyModal from '../components/EmergencyModal';
+import PartnerModal from '../components/PartnerModal';
+import { useGallery } from '../hooks/useGallery';
 
 export default function Home() {
+  const homeMedia = useGallery('home');
+  const cover = homeMedia[0];
+
   return (
     <>
-      <section className="hero">
+      <section className={homeMedia.length ? 'hero has-media' : 'hero'}>
+        <MediaStage items={homeMedia} />
         <div className="hero-inner">
           <p className="kicker">Emergency + scheduled</p>
           <h1>MIKE'S BIKES</h1>
@@ -18,12 +26,11 @@ export default function Home() {
             We'll come <em>get you</em>
           </p>
           <div className="cta-row">
-            <Link className="btn btn-primary" to="/quote">
+            <EmergencyModal />
+            <PartnerModal />
+            <Link className="btn btn-quote" to="/quote">
               Instant quote
             </Link>
-            <a className="btn btn-ghost" href="tel:2674046453">
-              Call now
-            </a>
             <AtlantaPromo />
           </div>
           <div className="traits">
@@ -37,7 +44,14 @@ export default function Home() {
       <section className="section grid-2">
         <Calculator />
         <div className="card">
-          <img src="/brand/card-back.jpg" alt="We'll come get you — Mike's Bikes" />
+          {cover?.kind === 'video' ? (
+            <video src={cover.url} muted playsInline autoPlay loop />
+          ) : (
+            <img
+              src={cover?.url || '/brand/card-back.jpg'}
+              alt={cover?.alt || "We'll come get you — Mike's Bikes"}
+            />
+          )}
           <h2 style={{ marginTop: '1rem' }}>Two ways we roll</h2>
           <p>Emergency pickup when you need a trailer now, or scheduled transport you can plan around.</p>
           <div className="cta-row" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>

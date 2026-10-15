@@ -14,11 +14,13 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Driver from './pages/Driver';
 import RequireAuth from './pages/RequireAuth';
+import IntroGate from './components/IntroGate';
 
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <IntroGate />
         <BrowserRouter>
           <Routes>
             <Route element={<Layout />}>

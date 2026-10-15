@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
+import FaqCarousel from '../components/FaqCarousel';
 
 export default function Services() {
   return (
+    <>
     <section className="section">
       <div className="section-head">
         <div>
@@ -34,5 +36,7 @@ export default function Services() {
         </article>
       </div>
     </section>
+    <FaqCarousel />
+    </>
   );
 }

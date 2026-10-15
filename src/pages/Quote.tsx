@@ -6,8 +6,8 @@ export default function Quote() {
       <p className="kicker">Know the number first</p>
       <h1>Instant quote</h1>
       <p className="lede muted">
-        Distance from OpenStreetMap routing, your rate table, enclosed premium, seasonal
-        multipliers, I-285 flat rate, and the 404 inoperable discount.
+        Scheduled pickup and drop-off available for Georgia, Florida, Tennessee, Alabama, and the
+        Carolinas. For inquiries of multiple bikes, please fill out the partnership form.
       </p>
       <Calculator />
     </section>

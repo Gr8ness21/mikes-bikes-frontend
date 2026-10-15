@@ -1,5 +1,16 @@
 export type Role = 'member' | 'driver' | 'admin';
 
+export type GalleryItem = {
+  _id: string;
+  url: string;
+  originalName: string;
+  kind: 'image' | 'video';
+  alt: string;
+  showOnHome: boolean;
+  showOnAbout: boolean;
+  order: number;
+};
+
 export type User = {
   id: string;
   firstName: string;

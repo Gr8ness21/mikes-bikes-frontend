@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import GalleryAdmin from '../components/GalleryAdmin';
 import { api } from '../api';
 import type { Booking } from '../types';
 
@@ -23,6 +24,20 @@ type Inquiry = {
   message: string;
 };
 
+type Emergency = {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  pickupAddress: string;
+  dropoffAddress: string;
+  year: string;
+  make: string;
+  model: string;
+  operable: boolean;
+  notes: string;
+};
+
 const bookingStatuses = [
   'pending_deposit',
   'deposit_paid',
@@ -38,6 +53,7 @@ export default function Admin() {
   const [blackouts, setBlackouts] = useState<Blackout[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [emergencies, setEmergencies] = useState<Emergency[]>([]);
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
   const [seasonForm, setSeasonForm] = useState({
@@ -49,17 +65,19 @@ export default function Admin() {
   const [blackForm, setBlackForm] = useState({ startDate: '', endDate: '', reason: '' });
 
   async function load() {
-    const [rates, blacks, books, partners] = await Promise.all([
+    const [rates, blacks, books, partners, distress] = await Promise.all([
       api<{ config: Rates; seasonal: Seasonal[] }>('/api/admin/rates'),
       api<{ blackouts: Blackout[] }>('/api/admin/blackouts'),
       api<{ bookings: Booking[] }>('/api/bookings'),
       api<{ inquiries: Inquiry[] }>('/api/admin/inquiries'),
+      api<{ emergencies: Emergency[] }>('/api/admin/emergencies'),
     ]);
     setConfig(rates.config);
     setSeasonal(rates.seasonal);
     setBlackouts(blacks.blackouts);
     setBookings(books.bookings);
     setInquiries(partners.inquiries);
+    setEmergencies(distress.emergencies);
   }
 
   useEffect(() => {
@@ -81,6 +99,7 @@ export default function Admin() {
       <h1>Admin</h1>
       {msg && <p className="success">{msg}</p>}
       {error && <p className="error">{error}</p>}
+      <GalleryAdmin onMessage={setMsg} onError={setError} />
       <div className="grid-2">
         <form className="card form" onSubmit={saveRates}>
           <h2>Base rates</h2>
@@ -348,6 +367,27 @@ export default function Admin() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="card" style={{ marginTop: '1.25rem' }}>
+        <h2>Emergency pickups</h2>
+        {emergencies.length === 0 && <p className="muted">None yet.</p>}
+        <ul>
+          {emergencies.map((q) => (
+            <li key={q._id}>
+              <strong>{q.name}</strong> ({q.email}
+              {q.phone ? ` · ${q.phone}` : ''})
+              <p className="muted">
+                {q.pickupAddress}
+                {q.dropoffAddress ? ` → ${q.dropoffAddress}` : ''}
+                {[q.year, q.make, q.model].filter(Boolean).length
+                  ? ` · ${[q.year, q.make, q.model].filter(Boolean).join(' ')}`
+                  : ''}
+                {q.operable ? '' : ' · inoperable'}
+              </p>
+              {q.notes && <p className="muted">{q.notes}</p>}
+            </li>
+          ))}
+        </ul>
       </div>
       <div className="card" style={{ marginTop: '1.25rem' }}>
         <h2>Partner inquiries</h2>
