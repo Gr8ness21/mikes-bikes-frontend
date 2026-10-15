@@ -7,6 +7,7 @@ type Props = {
 
 export default function GalleryCarousel({ items }: Props) {
   const [i, setI] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
   const current = items[i];
 
   useEffect(() => {
@@ -14,11 +15,20 @@ export default function GalleryCarousel({ items }: Props) {
   }, [items]);
 
   useEffect(() => {
-    if (items.length < 2) return;
+    if (items.length < 2 || lightbox) return;
     if (current?.kind === 'video') return;
     const t = window.setInterval(() => setI((n) => (n + 1) % items.length), 7000);
     return () => window.clearInterval(t);
-  }, [items, current]);
+  }, [items, current, lightbox]);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setLightbox(false);
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox]);
 
   if (!current) return null;
 
@@ -26,8 +36,19 @@ export default function GalleryCarousel({ items }: Props) {
     setI((n) => (n + delta + items.length) % items.length);
   }
 
+  const caption = current.alt || current.originalName;
+
   return (
-    <section className="gallery-parallax" aria-label="Customer photos and videos">
+    <>
+    <section
+      className={`gallery-parallax${current.kind === 'image' ? ' is-zoomable' : ''}`}
+      aria-label="Customer photos and videos"
+      onClick={(e) => {
+        if (current.kind !== 'image') return;
+        if ((e.target as HTMLElement).closest('.gallery-parallax-bar')) return;
+        setLightbox(true);
+      }}
+    >
       <div className="gallery-parallax-media">
         {current.kind === 'video' ? (
           <video
@@ -77,5 +98,23 @@ export default function GalleryCarousel({ items }: Props) {
         )}
       </div>
     </section>
+    {lightbox && current.kind === 'image' && (
+      <div
+        className="lightbox"
+        role="dialog"
+        aria-modal="true"
+        aria-label={caption}
+        onClick={() => setLightbox(false)}
+      >
+        <figure className="lightbox-figure" onClick={(e) => e.stopPropagation()}>
+          <img src={current.url} alt={caption} />
+          <figcaption>{caption}</figcaption>
+          <button type="button" className="btn btn-ghost" onClick={() => setLightbox(false)}>
+            Close
+          </button>
+        </figure>
+      </div>
+    )}
+    </>
   );
 }

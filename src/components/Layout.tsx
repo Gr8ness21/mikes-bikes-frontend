@@ -82,16 +82,17 @@ export default function Layout() {
         <div className="footer-body">
           <div>
             <strong>Mike's Bikes Transportation Services</strong>
-            <p className="muted">Emergency + scheduled · Pickup / drop-off in Atlanta</p>
+            <p className="muted">Emergency + Scheduled Pickup</p>
             <p className="script">
-              We'll come <em>get you</em>
+              We'll Come <em>Get You</em>
             </p>
           </div>
           <div>
             <p>
               <a href="tel:2674046453">267-404-MIKE (6453)</a>
             </p>
-            <p className="muted">Safe · Reliable · Fast response · All bikes welcome</p>
+            <p className="muted">Safe · Reliable · Fast response · All Bikes Welcome</p>
+            <p className="footer-copy">© ChapCodes</p>
           </div>
         </div>
       </footer>

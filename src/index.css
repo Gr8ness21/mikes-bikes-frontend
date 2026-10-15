@@ -607,7 +607,15 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: flex-end;
   gap: 1rem;
+}
+
+.footer-copy {
+  margin: 0;
+  color: var(--crimson);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .muted {
@@ -684,6 +692,10 @@ td {
   align-items: end;
 }
 
+.gallery-parallax.is-zoomable {
+  cursor: zoom-in;
+}
+
 .gallery-parallax-media,
 .gallery-parallax-still {
   position: absolute;
@@ -715,6 +727,39 @@ td {
   z-index: 1;
   padding: 1.5rem 1.25rem;
   width: min(720px, 100%);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: #000000e0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  cursor: zoom-out;
+}
+
+.lightbox-figure {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  max-width: min(1100px, 100%);
+  cursor: default;
+}
+
+.lightbox-figure img {
+  max-height: min(78svh, 860px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.lightbox-figure figcaption {
+  color: #fff;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .gallery-admin-list {

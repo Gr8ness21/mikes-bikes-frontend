@@ -15,15 +15,15 @@ export default function Home() {
       <section className={homeMedia.length ? 'hero has-media' : 'hero'}>
         <MediaStage items={homeMedia} />
         <div className="hero-inner">
-          <p className="kicker">Emergency + scheduled</p>
+          <p className="kicker">Emergency + Scheduled</p>
           <h1>MIKE'S BIKES</h1>
           <p className="kicker">Transportation Services</p>
           <p className="phone">
             267-404-<span className="red">MIKE</span> <span className="red">6453</span>
           </p>
-          <p>Pickup / drop-off in Atlanta. Safe. Reliable. Fast response. All bikes welcome.</p>
+          <p>Pickup / drop-off in Atlanta. Safe. Reliable. Fast response. All Bikes Welcome.</p>
           <p className="script" style={{ fontSize: '2rem' }}>
-            We'll come <em>get you</em>
+            We'll Come <em>Get You</em>
           </p>
           <div className="cta-row">
             <EmergencyModal />
@@ -37,7 +37,7 @@ export default function Home() {
             <div className="trait">Safe</div>
             <div className="trait">Reliable</div>
             <div className="trait">Fast response</div>
-            <div className="trait">All bikes welcome</div>
+            <div className="trait">All Bikes Welcome</div>
           </div>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function Home() {
           ) : (
             <img
               src={cover?.url || '/brand/card-back.jpg'}
-              alt={cover?.alt || "We'll come get you — Mike's Bikes"}
+              alt={cover?.alt || "We'll Come Get You — Mike's Bikes"}
             />
           )}
           <h2 style={{ marginTop: '1rem' }}>Two ways we roll</h2>

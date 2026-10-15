@@ -36,12 +36,19 @@ export default function About() {
         <div className="card">
           <h2>History & purpose</h2>
           <p>
-            Mike's Bikes Transportation Services moves motorcycles across Atlanta and beyond —
-            emergency recoveries and planned hauls. Open trailers keep it economical. Enclosed
-            keeps it premium and protected. The promise on the card is the operating plan:
+            Mike is an Atlanta native — a Grady Baby — with a love for bikes since childhood and a
+            deep love for the city. Mike's Bikes Transportation Services moves motorcycles across
+            Atlanta and beyond: emergency recoveries and planned hauls, built to serve the
+            community at large. Open trailers keep it economical. Enclosed keeps it premium and
+            protected.
           </p>
+          <p>
+            The shop has big aspirations: growth and partnerships with clubs and dealerships across
+            the Southeast.
+          </p>
+          <p>The promise on the card is the operating plan:</p>
           <p className="script" style={{ fontSize: '1.8rem', marginTop: '1rem' }}>
-            We'll come <em>get you</em>.
+            We'll Come <em>Get You</em>.
           </p>
           <p className="muted">Pickup and drop-off in Atlanta · 267-404-MIKE</p>
         </div>
