@@ -1,4 +1,5 @@
-export const API = String(import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const fallbackApi = import.meta.env.PROD ? 'https://mikes-bikes-backend.onrender.com' : '';
+export const API = String(import.meta.env.VITE_API_URL || fallbackApi).replace(/\/$/, '');
 
 export function mediaUrl(path: string) {
   if (!path || /^(https?:|data:|blob:)/i.test(path) || path.startsWith('/brand/')) {
