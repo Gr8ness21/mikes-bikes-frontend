@@ -14,13 +14,32 @@ type Rates = {
 
 type Seasonal = { _id: string; name: string; startDate: string; endDate: string; multiplier: number };
 type Blackout = { _id: string; startDate: string; endDate: string; reason: string };
+type Inquiry = {
+  _id: string;
+  organization: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
+const bookingStatuses = [
+  'pending_deposit',
+  'deposit_paid',
+  'scheduled',
+  'cancelled',
+  'in_transit',
+  'delivered',
+];
 
 export default function Admin() {
   const [config, setConfig] = useState<Rates | null>(null);
   const [seasonal, setSeasonal] = useState<Seasonal[]>([]);
   const [blackouts, setBlackouts] = useState<Blackout[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [msg, setMsg] = useState('');
+  const [error, setError] = useState('');
   const [seasonForm, setSeasonForm] = useState({
     name: '',
     startDate: '',
@@ -30,19 +49,21 @@ export default function Admin() {
   const [blackForm, setBlackForm] = useState({ startDate: '', endDate: '', reason: '' });
 
   async function load() {
-    const [rates, blacks, books] = await Promise.all([
+    const [rates, blacks, books, partners] = await Promise.all([
       api<{ config: Rates; seasonal: Seasonal[] }>('/api/admin/rates'),
       api<{ blackouts: Blackout[] }>('/api/admin/blackouts'),
       api<{ bookings: Booking[] }>('/api/bookings'),
+      api<{ inquiries: Inquiry[] }>('/api/admin/inquiries'),
     ]);
     setConfig(rates.config);
     setSeasonal(rates.seasonal);
     setBlackouts(blacks.blackouts);
     setBookings(books.bookings);
+    setInquiries(partners.inquiries);
   }
 
   useEffect(() => {
-    load().catch((e) => setMsg(e.message));
+    load().catch((e) => setError(e.message));
   }, []);
 
   async function saveRates(e: React.FormEvent) {
@@ -59,6 +80,7 @@ export default function Admin() {
     <section className="section">
       <h1>Admin</h1>
       {msg && <p className="success">{msg}</p>}
+      {error && <p className="error">{error}</p>}
       <div className="grid-2">
         <form className="card form" onSubmit={saveRates}>
           <h2>Base rates</h2>
@@ -109,6 +131,47 @@ export default function Admin() {
                 type="number"
                 value={config.i285FlatRate}
                 onChange={(e) => setConfig({ ...config, i285FlatRate: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+          <div className="inline-fields">
+            <label>
+              404 discount %
+              <input
+                type="number"
+                step="0.01"
+                value={config.inoperableDiscountPct}
+                onChange={(e) =>
+                  setConfig({ ...config, inoperableDiscountPct: Number(e.target.value) })
+                }
+              />
+            </label>
+            <label>
+              Daily scheduled slots
+              <input
+                type="number"
+                value={config.dailyScheduledCapacity}
+                onChange={(e) =>
+                  setConfig({ ...config, dailyScheduledCapacity: Number(e.target.value) })
+                }
+              />
+            </label>
+          </div>
+          <div className="inline-fields">
+            <label>
+              Min open $
+              <input
+                type="number"
+                value={config.minimumOpen}
+                onChange={(e) => setConfig({ ...config, minimumOpen: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              Min enclosed $
+              <input
+                type="number"
+                value={config.minimumEnclosed}
+                onChange={(e) => setConfig({ ...config, minimumEnclosed: Number(e.target.value) })}
               />
             </label>
           </div>
@@ -249,6 +312,7 @@ export default function Admin() {
           <thead>
             <tr>
               <th>Status</th>
+              <th>When</th>
               <th>Route</th>
               <th>Total</th>
             </tr>
@@ -256,7 +320,26 @@ export default function Admin() {
           <tbody>
             {bookings.map((b) => (
               <tr key={b._id}>
-                <td>{b.status}</td>
+                <td>
+                  <select
+                    aria-label={`Status for booking ${b._id}`}
+                    value={b.status}
+                    onChange={async (e) => {
+                      await api(`/api/bookings/${b._id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ status: e.target.value }),
+                      });
+                      await load();
+                    }}
+                  >
+                    {bookingStatuses.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replaceAll('_', ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>{b.scheduledDate ? b.scheduledDate.slice(0, 10) : 'ASAP'}</td>
                 <td>
                   {b.pickupAddress} → {b.dropoffAddress}
                 </td>
@@ -265,6 +348,19 @@ export default function Admin() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="card" style={{ marginTop: '1.25rem' }}>
+        <h2>Partner inquiries</h2>
+        {inquiries.length === 0 && <p className="muted">None yet.</p>}
+        <ul>
+          {inquiries.map((q) => (
+            <li key={q._id}>
+              <strong>{q.organization}</strong> — {q.name} ({q.email}
+              {q.phone ? ` · ${q.phone}` : ''})
+              <p className="muted">{q.message}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

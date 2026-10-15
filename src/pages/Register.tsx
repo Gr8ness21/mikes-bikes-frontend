@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from || '/dashboard';
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -19,7 +21,7 @@ export default function Register() {
     setError('');
     try {
       await register(form);
-      navigate('/dashboard');
+      navigate(from);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not register');
     }
@@ -77,7 +79,7 @@ export default function Register() {
         {error && <p className="error">{error}</p>}
         <button className="btn btn-primary">Create account</button>
         <p className="muted">
-          Already a member? <Link to="/login">Log in</Link>
+          Already a member? <Link to="/login" state={{ from }}>Log in</Link>
         </p>
       </form>
     </section>

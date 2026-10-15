@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 
 const reviews = [
@@ -26,6 +26,11 @@ export default function About() {
   });
   const [msg, setMsg] = useState('');
   const [i, setI] = useState(0);
+
+  useEffect(() => {
+    const t = window.setInterval(() => setI((n) => (n + 1) % reviews.length), 6000);
+    return () => window.clearInterval(t);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

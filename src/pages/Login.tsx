@@ -42,7 +42,7 @@ export default function Login() {
         {error && <p className="error">{error}</p>}
         <button className="btn btn-primary">Log in</button>
         <p className="muted">
-          New here? <Link to="/register">Create an account</Link>
+          New here? <Link to="/register" state={{ from }}>Create an account</Link>
         </p>
       </form>
     </section>

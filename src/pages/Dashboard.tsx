@@ -93,7 +93,16 @@ export default function Dashboard() {
           <ul>
             {vehicles.map((v) => (
               <li key={v._id}>
-                {v.year} {v.make} {v.model} {v.operable ? '' : '· inoperable'}
+                {v.year} {v.make} {v.model} {v.operable ? '' : '· inoperable'}{' '}
+                <button
+                  className="linkish"
+                  onClick={async () => {
+                    await api(`/api/vehicles/${v._id}`, { method: 'DELETE' });
+                    await load();
+                  }}
+                >
+                  Remove
+                </button>
               </li>
             ))}
           </ul>

@@ -35,9 +35,18 @@ export type Quote = {
   };
 };
 
+export type GeoPoint = {
+  lat: number;
+  lng: number;
+  displayName?: string;
+};
+
 export type QuoteResponse = {
   pickupAddress: string;
   dropoffAddress: string;
+  pickup: GeoPoint;
+  dropoff: GeoPoint;
+  path?: [number, number][];
   miles: number;
   insideI285: boolean;
   operable: boolean;

@@ -2,15 +2,54 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import type { QuoteResponse } from '../types';
+import AddressFields, {
+  addressReady,
+  formatAddress,
+  type AddressParts,
+} from './AddressFields';
+import MiniMap, { type MapPoint } from './MiniMap';
 
 type Props = {
   defaultService?: 'emergency' | 'scheduled';
 };
 
+type Place = { lat: number; lng: number; displayName: string };
+
+const emptyAddress: AddressParts = { street: '', city: '', state: 'GA', zip: '' };
+
+function useGeocodedPlace(parts: AddressParts) {
+  const [place, setPlace] = useState<Place | null>(null);
+  const [looking, setLooking] = useState(false);
+
+  useEffect(() => {
+    if (!addressReady(parts)) {
+      setPlace(null);
+      return;
+    }
+    const handle = window.setTimeout(async () => {
+      setLooking(true);
+      try {
+        const data = await api<{ place: Place }>('/api/geo/lookup', {
+          method: 'POST',
+          body: JSON.stringify(parts),
+        });
+        setPlace(data.place);
+      } catch {
+        setPlace(null);
+      } finally {
+        setLooking(false);
+      }
+    }, 700);
+    return () => window.clearTimeout(handle);
+  }, [parts.street, parts.city, parts.state, parts.zip]);
+
+  return { place, looking };
+}
+
 export default function Calculator({ defaultService = 'scheduled' }: Props) {
   const navigate = useNavigate();
-  const [pickupAddress, setPickup] = useState('');
-  const [dropoffAddress, setDropoff] = useState('');
+  const [pickup, setPickup] = useState<AddressParts>(emptyAddress);
+  const [dropoff, setDropoff] = useState<AddressParts>(emptyAddress);
   const [transportType, setType] = useState<'open' | 'enclosed'>('open');
   const [serviceType, setService] = useState(defaultService);
   const [scheduledDate, setDate] = useState('');
@@ -22,12 +61,68 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<QuoteResponse | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationNote, setLocationNote] = useState('');
+
+  const pickupGeo = useGeocodedPlace(pickup);
+  const dropoffGeo = useGeocodedPlace(dropoff);
 
   useEffect(() => {
     api<{ blocked: string[] }>('/api/availability')
       .then((d) => setBlocked(d.blocked))
       .catch(() => undefined);
   }, []);
+
+  async function shareCurrentLocation() {
+    setLocationNote('');
+    if (!navigator.geolocation) {
+      setLocationNote('This browser cannot share GPS location.');
+      return;
+    }
+    if (!window.isSecureContext) {
+      setLocationNote('Location sharing needs HTTPS (or localhost).');
+      return;
+    }
+    setLocating(true);
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 15000,
+        });
+      });
+      const data = await api<{
+        place: Place & AddressParts;
+      }>('/api/geo/reverse', {
+        method: 'POST',
+        body: JSON.stringify({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }),
+      });
+      setPickup({
+        street: data.place.street || '',
+        city: data.place.city || '',
+        state: data.place.state || 'GA',
+        zip: data.place.zip || '',
+      });
+      setLocationNote('Pickup set from your phone GPS. Confirm the street if it looks off.');
+    } catch (err) {
+      const geo = err as GeolocationPositionError;
+      if (geo?.code === 1) {
+        setLocationNote('Location permission was denied. You can still type the pickup address.');
+      } else if (geo?.code === 2) {
+        setLocationNote('GPS is unavailable right now. Try again or type the address.');
+      } else if (geo?.code === 3) {
+        setLocationNote('Location request timed out. Try again outdoors or type the address.');
+      } else {
+        setLocationNote(err instanceof Error ? err.message : 'Could not use current location');
+      }
+    } finally {
+      setLocating(false);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,8 +132,8 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
       const data = await api<QuoteResponse>('/api/quotes', {
         method: 'POST',
         body: JSON.stringify({
-          pickupAddress,
-          dropoffAddress,
+          pickupAddress: formatAddress(pickup),
+          dropoffAddress: formatAddress(dropoff),
           transportType,
           serviceType,
           scheduledDate: serviceType === 'scheduled' ? scheduledDate : undefined,
@@ -57,6 +152,20 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
     }
   }
 
+  const pickupPoint: MapPoint[] = pickupGeo.place
+    ? [{ ...pickupGeo.place, label: 'Pickup' }]
+    : [];
+  const dropoffPoint: MapPoint[] = dropoffGeo.place
+    ? [{ ...dropoffGeo.place, label: 'Drop-off' }]
+    : [];
+  const routePoints: MapPoint[] =
+    result?.pickup && result?.dropoff
+      ? [
+          { lat: result.pickup.lat, lng: result.pickup.lng, label: 'Pickup' },
+          { lat: result.dropoff.lat, lng: result.dropoff.lng, label: 'Drop-off' },
+        ]
+      : [];
+
   return (
     <div className="card">
       <h2>Transport calculator</h2>
@@ -64,39 +173,67 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
         Open (economical) or enclosed (premium protection). Instant on-screen estimate, then book.
       </p>
       <form className="form" onSubmit={onSubmit} style={{ marginTop: '1rem' }}>
-        <div className="inline-fields">
-          <label>
-            Pickup location
-            <input
-              required
-              value={pickupAddress}
-              onChange={(e) => setPickup(e.target.value)}
-              autoComplete="street-address"
-            />
-          </label>
-          <label>
-            Drop-off location
-            <input
-              required
-              value={dropoffAddress}
-              onChange={(e) => setDropoff(e.target.value)}
-              autoComplete="street-address"
-            />
-          </label>
-        </div>
+        <label>
+          Request type
+          <select
+            value={serviceType}
+            onChange={(e) => setService(e.target.value as 'emergency' | 'scheduled')}
+          >
+            <option value="emergency">Emergency pickup</option>
+            <option value="scheduled">Scheduled transport</option>
+          </select>
+        </label>
+        <AddressFields
+          id="pickup"
+          title="Pickup location"
+          value={pickup}
+          onChange={setPickup}
+          extra={
+            serviceType === 'emergency' ? (
+              <div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={shareCurrentLocation}
+                  disabled={locating}
+                >
+                  {locating ? 'Getting GPS…' : 'Use my current location'}
+                </button>
+                <p className="muted" style={{ marginTop: '0.4rem' }}>
+                  On a phone, this asks for location permission and fills pickup from GPS.
+                </p>
+                {locationNote && <p className="muted">{locationNote}</p>}
+              </div>
+            ) : null
+          }
+        />
+        {pickupGeo.looking && <p className="muted">Finding pickup on the map…</p>}
+        {pickupGeo.place && (
+          <MiniMap points={pickupPoint} label="Pickup location map" />
+        )}
+        <AddressFields id="dropoff" title="Drop-off location" value={dropoff} onChange={setDropoff} />
+        {dropoffGeo.looking && <p className="muted">Finding drop-off on the map…</p>}
+        {dropoffGeo.place && (
+          <MiniMap points={dropoffPoint} label="Drop-off location map" />
+        )}
         <div className="inline-fields">
           <label>
             Year
-            <input value={year} onChange={(e) => setYear(e.target.value)} inputMode="numeric" />
+            <input
+              required
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              inputMode="numeric"
+            />
           </label>
           <label>
             Make
-            <input value={make} onChange={(e) => setMake(e.target.value)} />
+            <input required value={make} onChange={(e) => setMake(e.target.value)} />
           </label>
         </div>
         <label>
           Model
-          <input value={model} onChange={(e) => setModel(e.target.value)} />
+          <input required value={model} onChange={(e) => setModel(e.target.value)} />
         </label>
         <div className="inline-fields">
           <label>
@@ -107,16 +244,6 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
             >
               <option value="open">Open — economical</option>
               <option value="enclosed">Enclosed — premium protected</option>
-            </select>
-          </label>
-          <label>
-            Request type
-            <select
-              value={serviceType}
-              onChange={(e) => setService(e.target.value as 'emergency' | 'scheduled')}
-            >
-              <option value="emergency">Emergency pickup</option>
-              <option value="scheduled">Scheduled transport</option>
             </select>
           </label>
         </div>
@@ -168,7 +295,15 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
               <li key={n}>{n}</li>
             ))}
           </ul>
-          <button className="btn btn-primary" onClick={() => navigate('/book')}>
+          {routePoints.length === 2 && (
+            <MiniMap
+              points={routePoints}
+              path={result.path}
+              height={240}
+              label="Route from pickup to drop-off"
+            />
+          )}
+          <button className="btn btn-primary" onClick={() => navigate('/book')} style={{ marginTop: '1rem' }}>
             Book now
           </button>
         </div>

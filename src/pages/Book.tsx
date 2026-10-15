@@ -30,7 +30,7 @@ export default function Book() {
           <Link className="btn btn-primary" to="/login" state={{ from: '/book' }}>
             Log in
           </Link>
-          <Link className="btn btn-ghost" to="/register">
+          <Link className="btn btn-ghost" to="/register" state={{ from: '/book' }}>
             Join
           </Link>
         </div>

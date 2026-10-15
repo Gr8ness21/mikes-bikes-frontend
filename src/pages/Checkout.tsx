@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { api } from '../api';
+import type { Booking } from '../types';
 
 const pk = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 const stripePromise = pk ? loadStripe(pk) : null;
@@ -50,26 +51,51 @@ function PayForm({ bookingId }: { bookingId: string }) {
 
 export default function Checkout() {
   const { id } = useParams();
-  const clientSecret = sessionStorage.getItem('mb_client_secret') || '';
+  const navigate = useNavigate();
+  const [clientSecret, setClientSecret] = useState(sessionStorage.getItem('mb_client_secret') || '');
+  const [stripeConfigured, setStripeConfigured] = useState(Boolean(pk));
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    return () => undefined;
-  }, []);
+    if (!id) return;
+    api<{ clientSecret: string | null; stripeConfigured: boolean; booking: Booking }>(
+      `/api/bookings/${id}/payment-secret`
+    )
+      .then((data) => {
+        setBooking(data.booking);
+        setStripeConfigured(data.stripeConfigured);
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+          sessionStorage.setItem('mb_client_secret', data.clientSecret);
+        }
+        setReady(true);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Could not load checkout');
+        setReady(true);
+      });
+  }, [id]);
 
-  if (!pk || !stripePromise) {
-    return (
-      <section className="section">
-        <h1>Stripe not configured</h1>
-        <p>Add VITE_STRIPE_PUBLISHABLE_KEY in frontend/.env and STRIPE_SECRET_KEY in backend/.env.</p>
-      </section>
-    );
+  async function simulate() {
+    if (!id) return;
+    setBusy(true);
+    setError('');
+    try {
+      await api(`/api/bookings/${id}/simulate-deposit`, { method: 'POST' });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not simulate deposit');
+      setBusy(false);
+    }
   }
 
-  if (!clientSecret || !id) {
+  if (!id) {
     return (
       <section className="section">
-        <h1>Missing payment session</h1>
-        <p>Start from a quote and book again.</p>
+        <h1>Missing booking</h1>
       </section>
     );
   }
@@ -78,9 +104,33 @@ export default function Checkout() {
     <section className="section">
       <h1>Deposit checkout</h1>
       <p className="muted">Pickup is not initiated until this half-payment succeeds.</p>
-      <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'night' } }}>
-        <PayForm bookingId={id} />
-      </Elements>
+      {booking && (
+        <p className="quote-total">${booking.quote.depositDue.toFixed(2)} due now</p>
+      )}
+      {error && <p className="error">{error}</p>}
+      {!ready && <p className="muted">Loading checkout…</p>}
+      {ready && pk && stripePromise && clientSecret && (
+        <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'night' } }}>
+          <PayForm bookingId={id} />
+        </Elements>
+      )}
+      {ready && stripeConfigured && !clientSecret && (
+        <p className="muted">Waiting for a Stripe payment session…</p>
+      )}
+      {ready && !stripeConfigured && (
+        <div className="card">
+          <h2>Stripe test keys not set yet</h2>
+          <p>
+            Add <code>STRIPE_SECRET_KEY</code> in <code>backend/.env</code> and{' '}
+            <code>VITE_STRIPE_PUBLISHABLE_KEY</code> in <code>frontend/.env</code>, then restart both
+            servers to collect a real 50% deposit.
+          </p>
+          <p className="muted">Until then you can simulate the deposit so the rest of the booking flow works.</p>
+          <button className="btn btn-primary" disabled={busy} onClick={simulate}>
+            {busy ? 'Saving…' : 'Simulate 50% deposit'}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

@@ -8,7 +8,8 @@ export default function Home() {
       <section className="hero">
         <div className="hero-inner">
           <p className="kicker">Emergency + scheduled</p>
-          <h1>MIKE'S BIKE TRANSPORT SERVICE</h1>
+          <h1>MIKE'S BIKES</h1>
+          <p className="kicker">Transportation Services</p>
           <p className="phone">
             267-404-<span className="red">MIKE</span> <span className="red">6453</span>
           </p>
