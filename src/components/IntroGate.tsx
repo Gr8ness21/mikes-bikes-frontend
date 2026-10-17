@@ -98,7 +98,6 @@ export default function IntroGate() {
         ref={videoRef}
         src={introVideo}
         muted
-        defaultMuted
         playsInline
         autoPlay
         loop
