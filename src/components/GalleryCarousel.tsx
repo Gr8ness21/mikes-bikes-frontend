@@ -61,6 +61,7 @@ export default function GalleryCarousel({ items }: Props) {
             controls={false}
             loop={items.length === 1}
             onEnded={items.length > 1 ? () => go(1) : undefined}
+            onError={() => go(1)}
           />
         ) : (
           <div

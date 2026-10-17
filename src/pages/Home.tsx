@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AtlantaPromo from '../components/AtlantaPromo';
 import Calculator from '../components/Calculator';
@@ -9,12 +10,14 @@ import { useGallery } from '../hooks/useGallery';
 
 export default function Home() {
   const homeMedia = useGallery('home');
+  const [liveMedia, setLiveMedia] = useState(false);
+  const [coverBroken, setCoverBroken] = useState(false);
   const cover = homeMedia[0];
 
   return (
     <>
-      <section className={homeMedia.length ? 'hero has-media' : 'hero'}>
-        <MediaStage items={homeMedia} />
+      <section className={liveMedia ? 'hero has-media' : 'hero'}>
+        <MediaStage items={homeMedia} onActiveChange={setLiveMedia} />
         <div className="hero-inner">
           <p className="kicker">Emergency + Scheduled</p>
           <h1>MIKE'S BIKES</h1>
@@ -45,12 +48,13 @@ export default function Home() {
       <section className="section grid-2">
         <Calculator />
         <div className="card">
-          {cover?.kind === 'video' ? (
-            <video src={mediaUrl(cover.url)} muted playsInline autoPlay loop />
+          {cover && !coverBroken && cover.kind === 'video' ? (
+            <video src={mediaUrl(cover.url)} muted playsInline autoPlay loop onError={() => setCoverBroken(true)} />
           ) : (
             <img
-              src={cover?.url ? mediaUrl(cover.url) : '/brand/card-back.jpg'}
+              src={cover && !coverBroken ? mediaUrl(cover.url) : '/brand/card-back.jpg'}
               alt={cover?.alt || "We'll Come Get You — Mike's Bikes"}
+              onError={() => setCoverBroken(true)}
             />
           )}
           <h2 style={{ marginTop: '1rem' }}>Two ways we roll</h2>

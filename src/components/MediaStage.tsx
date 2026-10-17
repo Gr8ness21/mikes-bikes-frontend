@@ -6,27 +6,39 @@ type Props = {
   items: GalleryItem[];
   className?: string;
   intervalMs?: number;
+  onActiveChange?: (hasMedia: boolean) => void;
 };
 
-export default function MediaStage({ items, className = '', intervalMs = 8000 }: Props) {
+export default function MediaStage({ items, className = '', intervalMs = 8000, onActiveChange }: Props) {
   const [i, setI] = useState(0);
-  const current = items[i];
+  const [skip, setSkip] = useState<Record<string, true>>({});
+  const playable = items.filter((item) => !skip[item._id]);
+  const current = playable[i] || playable[0];
 
   useEffect(() => {
     setI(0);
   }, [items]);
 
   useEffect(() => {
-    if (items.length < 2) return;
+    onActiveChange?.(playable.length > 0);
+  }, [playable.length, onActiveChange]);
+
+  useEffect(() => {
+    if (playable.length < 2) return;
     if (current?.kind === 'video') return;
-    const t = window.setInterval(() => setI((n) => (n + 1) % items.length), intervalMs);
+    const t = window.setInterval(() => setI((n) => (n + 1) % playable.length), intervalMs);
     return () => window.clearInterval(t);
-  }, [items, current, intervalMs]);
+  }, [playable, current, intervalMs]);
 
   if (!current) return null;
 
+  function fail() {
+    setSkip((prev) => ({ ...prev, [current._id]: true }));
+    setI(0);
+  }
+
   function next() {
-    setI((n) => (n + 1) % items.length);
+    setI((n) => (n + 1) % playable.length);
   }
 
   return (
@@ -38,11 +50,12 @@ export default function MediaStage({ items, className = '', intervalMs = 8000 }:
           autoPlay
           muted
           playsInline
-          loop={items.length === 1}
-          onEnded={items.length > 1 ? next : undefined}
+          loop={playable.length === 1}
+          onError={fail}
+          onEnded={playable.length > 1 ? next : undefined}
         />
       ) : (
-        <img key={current._id} src={mediaUrl(current.url)} alt="" />
+        <img key={current._id} src={mediaUrl(current.url)} alt="" onError={fail} />
       )}
     </div>
   );
