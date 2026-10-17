@@ -30,6 +30,9 @@ export default function IntroGate() {
     };
 
     const onKey = (e: KeyboardEvent) => {
+      if (leaving || !document.body.contains(gate)) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
         e.preventDefault();
         enter();
@@ -65,6 +68,7 @@ export default function IntroGate() {
       if (!gate.classList.contains('is-wiping')) return;
       gate.remove();
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
     };
 
     gate.addEventListener('pointerdown', onPointerDown);
