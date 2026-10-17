@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api';
+import type { QuoteResponse } from '../types';
 import AddressFields, { formatAddress, type AddressParts } from './AddressFields';
 
 const emptyAddress: AddressParts = { street: '', city: '', state: 'GA', zip: '' };
@@ -55,6 +56,24 @@ export default function EmergencyForm({ onSuccess }: Props) {
     const pickupAddress = formatAddress(form.pickup);
     const dropoffAddress = formatAddress(form.dropoff);
     const bike = [form.year, form.make, form.model].filter(Boolean).join(' ') || 'n/a';
+    let estimatedTotal = 'Could not estimate';
+    try {
+      const priced = await api<QuoteResponse>('/api/quotes', {
+        method: 'POST',
+        body: JSON.stringify({
+          pickupAddress,
+          dropoffAddress,
+          transportType: 'open',
+          operable: form.operable === 'yes',
+          serviceType: 'emergency',
+        }),
+      });
+      estimatedTotal = `$${priced.quote.total.toFixed(2)}`;
+      if (priced.quote.i285Applied) estimatedTotal += ' (I-285 flat rate)';
+      if (priced.miles != null) estimatedTotal += ` · ${priced.miles.toFixed(1)} mi`;
+    } catch {
+      estimatedTotal = 'Could not estimate (address lookup failed)';
+    }
     try {
       await api('/api/emergency', {
         method: 'POST',
@@ -69,6 +88,7 @@ export default function EmergencyForm({ onSuccess }: Props) {
           model: form.model,
           operable: form.operable === 'yes',
           notes: form.notes,
+          estimatedTotal,
         }),
       });
       await sendEmergencyEmail({
@@ -80,6 +100,7 @@ export default function EmergencyForm({ onSuccess }: Props) {
         bike,
         operable: form.operable === 'yes' ? 'Operable' : 'Inoperable',
         notes: form.notes || 'n/a',
+        estimated_total: estimatedTotal,
       });
       setForm(empty);
       onSuccess?.();

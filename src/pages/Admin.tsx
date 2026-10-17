@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import GalleryAdmin from '../components/GalleryAdmin';
+import HelpTip from '../components/HelpTip';
 import { api } from '../api';
 import type { Booking } from '../types';
 
@@ -36,6 +37,7 @@ type Emergency = {
   model: string;
   operable: boolean;
   notes: string;
+  estimatedTotal?: string;
 };
 
 const bookingStatuses = [
@@ -102,7 +104,16 @@ export default function Admin() {
       <GalleryAdmin onMessage={setMsg} onError={setError} />
       <div className="grid-2">
         <form className="card form" onSubmit={saveRates}>
-          <h2>Base rates</h2>
+          <h2>
+            Base rates
+            <HelpTip label="Base rates">
+              Mileage brackets pick the $/mile from the first row whose max miles is at least the
+              trip length. Enclosed multiplies that result (e.g. 1.5 = 50% more). I-285 flat $
+              replaces mileage when both ends are inside the perimeter. 404 discount % comes off
+              inoperable bikes. Min open / min enclosed are floors. Daily scheduled slots cap how
+              many planned hauls you take per day. Click Save rates after edits.
+            </HelpTip>
+          </h2>
           {config.brackets.map((b, idx) => (
             <div className="inline-fields" key={idx}>
               <label>
@@ -197,7 +208,15 @@ export default function Admin() {
           <button className="btn btn-primary">Save rates</button>
         </form>
         <div className="card">
-          <h2>Seasonal / holiday multipliers</h2>
+          <h2>
+            Seasonal / holiday multipliers
+            <HelpTip label="Seasonal multipliers">
+              A named window (start–end) multiplies every quote whose haul date falls in that
+              range, including the I-285 flat. Example: Memorial Day weekend named “Holiday” at
+              1.2 = 20% more. Bike Week at 1.5 = 50% more. If two windows overlap, the higher
+              multiplier wins. Remove a row to go back to normal rates.
+            </HelpTip>
+          </h2>
           <form
             className="form"
             onSubmit={async (e) => {
@@ -269,7 +288,14 @@ export default function Admin() {
         </div>
       </div>
       <div className="card" style={{ marginTop: '1.25rem' }}>
-        <h2>Blackout dates</h2>
+        <h2>
+          Blackout dates
+          <HelpTip label="Blackout dates">
+            Block scheduled transport on days you cannot haul (vacation, full trailers, weather).
+            Riders cannot pick those dates on the calculator. Emergency pickup is still accepted
+            through the home button. Add a reason so you remember why the days are closed.
+          </HelpTip>
+        </h2>
         <form
           className="form"
           onSubmit={async (e) => {
@@ -326,7 +352,13 @@ export default function Admin() {
         </ul>
       </div>
       <div className="card table-wrap" style={{ marginTop: '1.25rem' }}>
-        <h2>All bookings</h2>
+        <h2>
+          All bookings
+          <HelpTip label="Bookings">
+            Every paid or pending haul. Change status as the job moves: deposit paid, scheduled,
+            in transit, delivered, or cancelled. ASAP means emergency / no calendar date.
+          </HelpTip>
+        </h2>
         <table>
           <thead>
             <tr>
@@ -369,7 +401,14 @@ export default function Admin() {
         </table>
       </div>
       <div className="card" style={{ marginTop: '1.25rem' }}>
-        <h2>Emergency pickups</h2>
+        <h2>
+          Emergency pickups
+          <HelpTip label="Emergency pickups">
+            Live requests from the glowing home button. You also get an email with an approximate
+            total from the same rate table as Instant quote. That price is for you, not shown to
+            the rider on submit.
+          </HelpTip>
+        </h2>
         {emergencies.length === 0 && <p className="muted">None yet.</p>}
         <ul>
           {emergencies.map((q) => (
@@ -383,6 +422,7 @@ export default function Admin() {
                   ? ` · ${[q.year, q.make, q.model].filter(Boolean).join(' ')}`
                   : ''}
                 {q.operable ? '' : ' · inoperable'}
+                {q.estimatedTotal ? ` · est. ${q.estimatedTotal}` : ''}
               </p>
               {q.notes && <p className="muted">{q.notes}</p>}
             </li>
@@ -390,7 +430,13 @@ export default function Admin() {
         </ul>
       </div>
       <div className="card" style={{ marginTop: '1.25rem' }}>
-        <h2>Partner inquiries</h2>
+        <h2>
+          Partner inquiries
+          <HelpTip label="Partner inquiries">
+            Messages from Partner With Us (shops, clubs, fleets). The same note is emailed to you.
+            Follow up off-site; there is no in-app reply.
+          </HelpTip>
+        </h2>
         {inquiries.length === 0 && <p className="muted">None yet.</p>}
         <ul>
           {inquiries.map((q) => (

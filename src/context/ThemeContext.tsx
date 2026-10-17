@@ -8,13 +8,15 @@ const ThemeContext = createContext<{
 } | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem('mb_theme') as Theme) || 'light'
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem('mb_theme_v2') as Theme | null;
+    if (saved === 'dark' || saved === 'light') return saved;
+    return 'dark';
+  });
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('mb_theme', theme);
+    localStorage.setItem('mb_theme_v2', theme);
   }, [theme]);
 
   const value = useMemo(

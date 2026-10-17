@@ -631,6 +631,52 @@ textarea {
   color: #8dffb0;
 }
 
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.help-tip {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.help-tip-btn {
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--crimson);
+  background: transparent;
+  color: var(--crimson);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.help-tip-pop {
+  position: absolute;
+  z-index: 24;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  width: min(300px, 72vw);
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #ffffff22;
+  background: #0e0e0e;
+  color: #ddd;
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.4;
+  box-shadow: var(--shadow);
+}
+
 .table-wrap {
   overflow: auto;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, mediaUrl } from '../api';
+import HelpTip from './HelpTip';
 import type { GalleryItem } from '../types';
 
 type Props = {
@@ -81,7 +82,14 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
 
   return (
     <div className="card" style={{ marginBottom: '1.25rem' }}>
-      <h2>Customer gallery</h2>
+      <h2>
+        Customer gallery
+        <HelpTip label="Customer gallery">
+          Upload photos or mp4s. Home = hero background. About = the On the road carousel. Caption
+          shows when someone enlarges a still. Up/Down is playback order. Files live on this
+          server’s disk — re-upload after a Render backend deploy unless you add a persistent disk.
+        </HelpTip>
+      </h2>
       <p className="muted">
         Home uses checked items as the hero background. About uses checked items in the parallax
         carousel under History / Riders. Order here is the playback order. Prefer mp4 for video.

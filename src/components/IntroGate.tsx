@@ -14,15 +14,35 @@ export default function IntroGate() {
     setWiping(true);
   }, []);
 
+  const kickPlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    const play = () => {
+      video.play().catch(() => {});
+    };
+    play();
+    requestAnimationFrame(play);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = 'hidden';
     const video = videoRef.current;
-    const tryPlay = () => {
-      video?.play().catch(() => {});
+    kickPlay();
+    const events = ['loadeddata', 'canplay', 'canplaythrough', 'playing'] as const;
+    events.forEach((name) => video?.addEventListener(name, kickPlay));
+    const onVis = () => {
+      if (document.visibilityState === 'visible') kickPlay();
     };
-    tryPlay();
-    video?.addEventListener('canplay', tryPlay);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', kickPlay);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
         e.preventDefault();
@@ -32,10 +52,12 @@ export default function IntroGate() {
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
-      video?.removeEventListener('canplay', tryPlay);
+      events.forEach((name) => video?.removeEventListener(name, kickPlay));
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', kickPlay);
       window.removeEventListener('keydown', onKey);
     };
-  }, [open, enter]);
+  }, [open, enter, kickPlay]);
 
   if (!open) return null;
 
@@ -76,9 +98,13 @@ export default function IntroGate() {
         ref={videoRef}
         src={introVideo}
         muted
+        defaultMuted
         playsInline
         autoPlay
+        loop
         preload="auto"
+        disablePictureInPicture
+        controls={false}
         aria-hidden
       />
       <p className="intro-gate-hint">Swipe to enter</p>
