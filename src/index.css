@@ -551,6 +551,18 @@ textarea {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--crimson);
+  text-align: center;
+}
+
+.promo h2 {
+  display: block;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.promo .cta-row {
+  justify-content: center;
 }
 
 .promo strong {
@@ -762,6 +774,17 @@ td {
   background: center / cover no-repeat;
 }
 
+@media (min-width: 900px) {
+  .gallery-parallax {
+    min-height: min(82vh, 920px);
+  }
+
+  .gallery-parallax-still {
+    top: 3%;
+    bottom: 3%;
+  }
+}
+
 .gallery-parallax-scrim {
   position: absolute;
   inset: 0;
@@ -782,8 +805,38 @@ td {
   background: #000000e0;
   display: grid;
   place-items: center;
-  padding: 1.25rem;
+  padding: 1.25rem 4.2rem;
   cursor: zoom-out;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid #ffffff55;
+  border-radius: 999px;
+  background: #00000099;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lightbox-nav-prev {
+  left: 0.85rem;
+}
+
+.lightbox-nav-next {
+  right: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .lightbox {
+    padding: 1.25rem 3.1rem;
+  }
 }
 
 .lightbox-figure {
@@ -824,6 +877,23 @@ td {
   border: 1px solid #ffffff18;
   border-radius: var(--radius);
   padding: 0.65rem;
+}
+
+.gallery-admin-row.is-top3 {
+  border-color: var(--crimson);
+}
+
+.top3-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--crimson);
+  border-radius: 999px;
+  color: var(--crimson);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .gallery-admin-row img,

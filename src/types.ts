@@ -9,6 +9,8 @@ export type GalleryItem = {
   showOnHome: boolean;
   showOnAbout: boolean;
   order: number;
+  top3?: boolean;
+  durable?: boolean;
 };
 
 export type User = {

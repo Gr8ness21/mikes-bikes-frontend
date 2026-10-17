@@ -14,11 +14,13 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
   const [showOnHome, setShowOnHome] = useState(true);
   const [showOnAbout, setShowOnAbout] = useState(true);
   const [alt, setAlt] = useState('');
+  const [captions, setCaptions] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
   async function load() {
     const data = await api<{ items: GalleryItem[] }>('/api/admin/gallery');
     setItems(data.items);
+    setCaptions(Object.fromEntries(data.items.map((item) => [item._id, item.alt || ''])));
   }
 
   useEffect(() => {
@@ -85,14 +87,16 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
       <h2>
         Customer gallery
         <HelpTip label="Customer gallery">
-          Upload photos or mp4s. Home = hero background. About = the On the road carousel. Caption
-          shows when someone enlarges a still. Up/Down is playback order. Files live on this
-          server’s disk — re-upload after a Render backend deploy unless you add a persistent disk.
+          The first three slots are Top 3. Photos there (under 12MB) are copied into the database so
+          they survive a Render redeploy. Use Up/Down to move keepers into those slots. Edit a
+          caption anytime and save it. Home = hero. About = On the road carousel. Large videos still
+          live only on server disk.
         </HelpTip>
       </h2>
       <p className="muted">
-        Home uses checked items as the hero background. About uses checked items in the parallax
-        carousel under History / Riders. Order here is the playback order. Prefer mp4 for video.
+        The first three rows are Top 3 and are saved in the database. Home uses checked items as the
+        hero background. About uses checked items in the parallax carousel. Prefer mp4 for extra
+        videos.
       </p>
       <form className="form" onSubmit={upload} style={{ marginTop: '1rem' }}>
         <label>
@@ -125,7 +129,7 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
       {items.length === 0 && <p className="muted">No customer media yet — business card art stays as fallback.</p>}
       <ul className="gallery-admin-list">
         {items.map((item, index) => (
-          <li key={item._id} className="gallery-admin-row">
+          <li key={item._id} className={`gallery-admin-row${index < 3 ? ' is-top3' : ''}`}>
             {item.kind === 'video' ? (
               <video src={mediaUrl(item.url)} muted playsInline />
             ) : (
@@ -133,7 +137,31 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
             )}
             <div>
               <strong>{item.originalName}</strong>
-              <p className="muted">{item.kind}</p>
+              {index < 3 && <span className="top3-badge">Top 3</span>}
+              <p className="muted">
+                {item.kind}
+                {item.durable ? ' · saved in database' : ''}
+              </p>
+              <label>
+                Caption
+                <input
+                  value={captions[item._id] ?? item.alt ?? ''}
+                  onChange={(e) => setCaptions((current) => ({ ...current, [item._id]: e.target.value }))}
+                  placeholder="Shown when the photo is enlarged"
+                />
+              </label>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ marginTop: '0.4rem' }}
+                onClick={() =>
+                  patch(item._id, { alt: captions[item._id] ?? '' })
+                    .then(() => onMessage('Caption saved'))
+                    .catch((err) => onError(err instanceof Error ? err.message : 'Could not save caption'))
+                }
+              >
+                Save caption
+              </button>
               <label className="check-row">
                 <input
                   type="checkbox"
