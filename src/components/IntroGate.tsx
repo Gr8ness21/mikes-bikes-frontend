@@ -1,112 +1,92 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import introVideo from "../assets/Mike's Bikes 2.MP4";
+import { useEffect } from 'react';
+
+function kickPlay(video: HTMLVideoElement) {
+  video.muted = true;
+  video.defaultMuted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', 'true');
+  void video.play().catch(() => {});
+}
 
 export default function IntroGate() {
-  const [open, setOpen] = useState(true);
-  const [wiping, setWiping] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const startRef = useRef<{ x: number; y: number } | null>(null);
-  const leaving = useRef(false);
-
-  const enter = useCallback(() => {
-    if (leaving.current) return;
-    leaving.current = true;
-    setWiping(true);
-  }, []);
-
-  const kickPlay = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    video.defaultMuted = true;
-    video.loop = true;
-    video.playsInline = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-    const play = () => {
-      video.play().catch(() => {});
-    };
-    play();
-    requestAnimationFrame(play);
-  }, []);
-
   useEffect(() => {
-    if (!open) return;
+    const gate = document.getElementById('intro-gate');
+    const video = document.getElementById('intro-video') as HTMLVideoElement | null;
+    if (!gate) return;
+
     document.body.style.overflow = 'hidden';
-    const video = videoRef.current;
-    kickPlay();
-    const events = ['loadeddata', 'canplay', 'canplaythrough', 'playing'] as const;
-    events.forEach((name) => video?.addEventListener(name, kickPlay));
-    const onVis = () => {
-      if (document.visibilityState === 'visible') kickPlay();
+    if (video) kickPlay(video);
+
+    let start: { x: number; y: number } | null = null;
+    let leaving = false;
+
+    const enter = () => {
+      if (leaving) return;
+      leaving = true;
+      gate.classList.add('is-wiping');
     };
-    document.addEventListener('visibilitychange', onVis);
-    window.addEventListener('pageshow', kickPlay);
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
         e.preventDefault();
         enter();
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = '';
-      events.forEach((name) => video?.removeEventListener(name, kickPlay));
-      document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('pageshow', kickPlay);
-      window.removeEventListener('keydown', onKey);
+
+    const onPointerDown = (e: PointerEvent) => {
+      start = { x: e.clientX, y: e.clientY };
+      if (video) kickPlay(video);
     };
-  }, [open, enter, kickPlay]);
 
-  if (!open) return null;
+    const onPointerUp = (e: PointerEvent) => {
+      const from = start;
+      start = null;
+      if (!from) {
+        enter();
+        return;
+      }
+      const moved = Math.hypot(e.clientX - from.x, e.clientY - from.y) > 36;
+      const tap = Math.hypot(e.clientX - from.x, e.clientY - from.y) < 12;
+      if (moved || tap) enter();
+    };
 
-  function onPointerDown(e: React.PointerEvent) {
-    startRef.current = { x: e.clientX, y: e.clientY };
-  }
+    const onCancel = () => {
+      start = null;
+    };
 
-  function onPointerUp(e: React.PointerEvent) {
-    const start = startRef.current;
-    startRef.current = null;
-    if (!start) {
-      enter();
-      return;
-    }
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-    const moved = Math.hypot(dx, dy) > 36;
-    const tap = Math.hypot(dx, dy) < 12;
-    if (moved || tap) enter();
-  }
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && video) kickPlay(video);
+    };
 
-  return (
-    <div
-      className={`intro-gate${wiping ? ' is-wiping' : ''}`}
-      role="button"
-      tabIndex={0}
-      aria-label="Swipe to enter Mike's Bikes"
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerCancel={() => {
-        startRef.current = null;
-      }}
-      onAnimationEnd={() => {
-        if (wiping) setOpen(false);
-      }}
-    >
-      <video
-        ref={videoRef}
-        src={introVideo}
-        muted
-        playsInline
-        autoPlay
-        loop
-        preload="auto"
-        disablePictureInPicture
-        controls={false}
-        aria-hidden
-      />
-      <p className="intro-gate-hint">Swipe to enter</p>
-    </div>
-  );
+    const onAnimEnd = () => {
+      if (!gate.classList.contains('is-wiping')) return;
+      gate.remove();
+      document.body.style.overflow = '';
+    };
+
+    gate.addEventListener('pointerdown', onPointerDown);
+    gate.addEventListener('pointerup', onPointerUp);
+    gate.addEventListener('pointercancel', onCancel);
+    gate.addEventListener('animationend', onAnimEnd);
+    window.addEventListener('keydown', onKey);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', onVis);
+    video?.addEventListener('loadeddata', () => kickPlay(video));
+    video?.addEventListener('canplay', () => kickPlay(video));
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', onVis);
+      gate.removeEventListener('pointerdown', onPointerDown);
+      gate.removeEventListener('pointerup', onPointerUp);
+      gate.removeEventListener('pointercancel', onCancel);
+      gate.removeEventListener('animationend', onAnimEnd);
+    };
+  }, []);
+
+  return null;
 }

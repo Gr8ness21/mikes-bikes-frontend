@@ -15,9 +15,73 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Kaushan+Script&family=Barlow:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <style>
+      #intro-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: #000;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        touch-action: none;
+      }
+      #intro-gate video {
+        width: min(420px, 72vmin);
+        height: min(420px, 72vmin);
+        object-fit: contain;
+        pointer-events: none;
+      }
+      #intro-gate .intro-gate-hint {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 9%;
+        margin: 0;
+        text-align: center;
+        font-family: 'Bebas Neue', Impact, sans-serif;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: #fff;
+      }
+    </style>
   </head>
   <body>
+    <div id="intro-gate" class="intro-gate" role="button" tabindex="0" aria-label="Swipe to enter Mike's Bikes">
+      <video
+        id="intro-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+      >
+        <source src="/intro.mp4" type="video/mp4" />
+      </video>
+      <p class="intro-gate-hint">Swipe to enter</p>
+    </div>
     <div id="root"></div>
+    <script>
+      (function () {
+        var video = document.getElementById('intro-video');
+        if (!video) return;
+        video.muted = true;
+        video.defaultMuted = true;
+        video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', 'true');
+        var play = function () {
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+        };
+        play();
+        video.addEventListener('loadeddata', play);
+        video.addEventListener('canplay', play);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -965,6 +965,12 @@ td {
   pointer-events: none;
 }
 
+.intro-gate video::-webkit-media-controls,
+.intro-gate video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 .intro-gate-hint {
   position: absolute;
   left: 0;
