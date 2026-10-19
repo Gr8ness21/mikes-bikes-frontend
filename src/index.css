@@ -748,11 +748,41 @@ td {
 }
 
 .faq-parallax {
+  position: relative;
+  overflow: hidden;
   margin-top: 2rem;
   padding: 4.5rem 1.25rem;
-  background:
-    linear-gradient(#000000bb, #000000d8),
-    url('/brand/card-front.jpg') center / cover no-repeat fixed;
+  background: #000;
+}
+
+.faq-parallax-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.faq-parallax-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.faq-parallax::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(#000000bb, #000000d8);
+  pointer-events: none;
+}
+
+:root[data-theme='light'] .faq-parallax {
+  background: #f4f4f4;
+}
+
+:root[data-theme='light'] .faq-parallax::after {
+  background: linear-gradient(#ffffffb8, #ffffffd4);
 }
 
 .gallery-parallax {
@@ -933,6 +963,8 @@ td {
 }
 
 .faq-inner {
+  position: relative;
+  z-index: 1;
   width: min(720px, 100%);
   margin: 0 auto;
   min-height: 280px;
@@ -1019,8 +1051,7 @@ td {
     grid-template-columns: 1fr;
   }
 
-  .hero,
-  .faq-parallax {
+  .hero {
     background-attachment: scroll;
   }
 
