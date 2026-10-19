@@ -23,7 +23,7 @@ export default function Home() {
           <h1>MIKE'S BIKES</h1>
           <p className="kicker">Transportation Services</p>
           <p className="phone">
-            267-404-<span className="red">MIKE</span> <span className="red">6453</span>
+            267-404-<span className="red">MIKE</span> <span className="red">(6453)</span>
           </p>
           <p>Pickup / drop-off in Atlanta. Safe. Reliable. Fast response. All Bikes Welcome.</p>
           <p className="script" style={{ fontSize: '2rem' }}>
@@ -59,7 +59,7 @@ export default function Home() {
           )}
           <h2 style={{ marginTop: '1rem' }}>Two ways we roll</h2>
           <p>Emergency pickup when you need a trailer now, or scheduled transport you can plan around.</p>
-          <div className="cta-row" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>
+          <div className="cta-row" style={{ justifyContent: 'center', marginTop: '1rem' }}>
             <Link className="btn btn-primary" to="/services">
               View services
             </Link>

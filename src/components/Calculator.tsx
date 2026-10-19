@@ -228,7 +228,7 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
         </label>
         <AddressFields
           id="pickup"
-          title="Pickup location"
+          title="Pickup Location | Where Is The Bike"
           value={pickup}
           onChange={setPickup}
           extra={
@@ -267,7 +267,12 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
         />
         )}
         <MiniMap points={pickupPoint} label="Pickup location map" />
-        <AddressFields id="dropoff" title="Drop-off location" value={dropoff} onChange={setDropoff} />
+        <AddressFields
+          id="dropoff"
+          title="Dropoff Location. | Where Is The Bike Going"
+          value={dropoff}
+          onChange={setDropoff}
+        />
         {dropoffGeo.looking && <p className="muted">Finding drop-off on the map…</p>}
         {dropoffGeo.error && <p className="error">{dropoffGeo.error}</p>}
         {dropoffGeo.note && <p className="muted">{dropoffGeo.note}</p>}
@@ -285,25 +290,28 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
         />
         )}
         <MiniMap points={dropoffPoint} label="Drop-off location map" />
-        <div className="inline-fields">
+        <fieldset className="address-block">
+          <legend>Motorcycle info</legend>
+          <div className="inline-fields">
+            <label>
+              Year
+              <input
+                required
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                inputMode="numeric"
+              />
+            </label>
+            <label>
+              Make
+              <input required value={make} onChange={(e) => setMake(e.target.value)} />
+            </label>
+          </div>
           <label>
-            Year
-            <input
-              required
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              inputMode="numeric"
-            />
+            Model
+            <input required value={model} onChange={(e) => setModel(e.target.value)} />
           </label>
-          <label>
-            Make
-            <input required value={make} onChange={(e) => setMake(e.target.value)} />
-          </label>
-        </div>
-        <label>
-          Model
-          <input required value={model} onChange={(e) => setModel(e.target.value)} />
-        </label>
+        </fieldset>
         <div className="inline-fields">
           <label>
             Transport type
