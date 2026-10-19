@@ -84,7 +84,7 @@ export default function Layout() {
             <strong>Mike's Bikes Transportation Services</strong>
             <p className="muted">Emergency + Scheduled Pickup</p>
             <p className="script">
-              We'll Come <em>Get You</em>
+              We'll Come <em>Get You</em>!
             </p>
           </div>
           <div>

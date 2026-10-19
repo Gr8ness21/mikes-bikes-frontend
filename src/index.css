@@ -245,6 +245,15 @@ main {
   color: #fff;
 }
 
+:root[data-theme='light'] .hero h1 {
+  color: #111;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px #fff,
+    0 2px 10px #fff,
+    0 6px 28px #ffffffee;
+}
+
 .hero .kicker,
 .hero p,
 .hero .script {
@@ -386,6 +395,12 @@ textarea:focus-visible {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.72rem;
+}
+
+:root[data-theme='light'] .trait {
+  background: #fffffff5;
+  color: #111;
+  border-color: #00000022;
 }
 
 .section {
@@ -879,11 +894,11 @@ td {
   padding: 0.65rem;
 }
 
-.gallery-admin-row.is-top3 {
+.gallery-admin-row.is-top5 {
   border-color: var(--crimson);
 }
 
-.top3-badge {
+.top5-badge {
   display: inline-block;
   margin-left: 0.45rem;
   padding: 0.12rem 0.4rem;

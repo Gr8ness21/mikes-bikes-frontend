@@ -6,10 +6,12 @@ import MediaStage from '../components/MediaStage';
 import EmergencyModal from '../components/EmergencyModal';
 import PartnerModal from '../components/PartnerModal';
 import { mediaUrl } from '../api';
+import { withLeadReel } from '../brandMedia';
 import { useGallery } from '../hooks/useGallery';
 
 export default function Home() {
   const homeMedia = useGallery('home');
+  const stageMedia = withLeadReel(homeMedia);
   const [liveMedia, setLiveMedia] = useState(false);
   const [coverBroken, setCoverBroken] = useState(false);
   const cover = homeMedia[0];
@@ -17,7 +19,7 @@ export default function Home() {
   return (
     <>
       <section className={liveMedia ? 'hero has-media' : 'hero'}>
-        <MediaStage items={homeMedia} onActiveChange={setLiveMedia} />
+        <MediaStage items={stageMedia} onActiveChange={setLiveMedia} />
         <div className="hero-inner">
           <p className="kicker">Emergency + Scheduled</p>
           <h1>MIKE'S BIKES</h1>
@@ -27,7 +29,7 @@ export default function Home() {
           </p>
           <p>Pickup / drop-off in Atlanta. Safe. Reliable. Fast response. All Bikes Welcome.</p>
           <p className="script" style={{ fontSize: '2rem' }}>
-            We'll Come <em>Get You</em>
+            We'll Come <em>Get You</em>!
           </p>
           <div className="cta-row">
             <EmergencyModal />
@@ -53,7 +55,7 @@ export default function Home() {
           ) : (
             <img
               src={cover && !coverBroken ? mediaUrl(cover.url) : '/brand/card-back.jpg'}
-              alt={cover?.alt || "We'll Come Get You — Mike's Bikes"}
+              alt={cover?.alt || "We'll Come Get You! — Mike's Bikes"}
               onError={() => setCoverBroken(true)}
             />
           )}

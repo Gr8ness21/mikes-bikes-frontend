@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import GalleryCarousel from '../components/GalleryCarousel';
 import PartnerForm from '../components/PartnerForm';
+import { withLeadReel } from '../brandMedia';
 import { useGallery } from '../hooks/useGallery';
 
 const reviews = [
@@ -48,7 +49,7 @@ export default function About() {
           </p>
           <p>The promise on the card is the operating plan:</p>
           <p className="script" style={{ fontSize: '1.8rem', marginTop: '1rem' }}>
-            We'll Come <em>Get You</em>.
+            We'll Come <em>Get You</em>!
           </p>
           <p className="muted">Pickup and drop-off in Atlanta · 267-404-MIKE</p>
         </div>
@@ -66,7 +67,7 @@ export default function About() {
         </div>
       </div>
       <GalleryCarousel
-        items={
+        items={withLeadReel(
           aboutMedia.length
             ? aboutMedia
             : [
@@ -81,7 +82,7 @@ export default function About() {
                   order: 0,
                 },
               ]
-        }
+        )}
       />
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h2>Partner with us</h2>

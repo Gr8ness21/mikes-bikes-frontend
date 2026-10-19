@@ -2,10 +2,9 @@ const fallbackApi = import.meta.env.PROD ? 'https://mikes-bikes-backend-1.onrend
 export const API = String(import.meta.env.VITE_API_URL || fallbackApi).replace(/\/$/, '');
 
 export function mediaUrl(path: string) {
-  if (!path || /^(https?:|data:|blob:)/i.test(path) || path.startsWith('/brand/')) {
-    return path;
-  }
-  return `${API}${path}`;
+  if (!path || /^(https?:|data:|blob:)/i.test(path)) return path;
+  if (path.startsWith('/uploads') || path.startsWith('/api/')) return `${API}${path}`;
+  return path;
 }
 
 function token() {

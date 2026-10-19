@@ -44,7 +44,7 @@ export default function EmergencyModal() {
           <div className="card modal modal-wide">
             {sent ? (
               <p className="success" role="status">
-                Request sent. We'll Come Get You.
+                Request sent. We'll Come Get You!
               </p>
             ) : (
               <>

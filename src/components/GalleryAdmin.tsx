@@ -87,16 +87,14 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
       <h2>
         Customer gallery
         <HelpTip label="Customer gallery">
-          The first three slots are Top 3. Photos there (under 12MB) are copied into the database so
-          they survive a Render redeploy. Use Up/Down to move keepers into those slots. Edit a
-          caption anytime and save it. Home = hero. About = On the road carousel. Large videos still
-          live only on server disk.
+          The first five slots are Top 5. Photos and videos there are stored in the database so they
+          survive a Render redeploy. Use Up/Down to move keepers into those slots. Edit a caption
+          anytime and save it. Home = hero. About = On the road carousel.
         </HelpTip>
       </h2>
       <p className="muted">
-        The first three rows are Top 3 and are saved in the database. Home uses checked items as the
-        hero background. About uses checked items in the parallax carousel. Prefer mp4 for extra
-        videos.
+        The first five rows are Top 5 and are saved in the database, including videos. Home uses
+        checked items as the hero background. About uses checked items in the parallax carousel.
       </p>
       <form className="form" onSubmit={upload} style={{ marginTop: '1rem' }}>
         <label>
@@ -129,7 +127,7 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
       {items.length === 0 && <p className="muted">No customer media yet — business card art stays as fallback.</p>}
       <ul className="gallery-admin-list">
         {items.map((item, index) => (
-          <li key={item._id} className={`gallery-admin-row${index < 3 ? ' is-top3' : ''}`}>
+          <li key={item._id} className={`gallery-admin-row${index < 5 ? ' is-top5' : ''}`}>
             {item.kind === 'video' ? (
               <video src={mediaUrl(item.url)} muted playsInline />
             ) : (
@@ -137,7 +135,7 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
             )}
             <div>
               <strong>{item.originalName}</strong>
-              {index < 3 && <span className="top3-badge">Top 3</span>}
+              {index < 5 && <span className="top5-badge">Top 5</span>}
               <p className="muted">
                 {item.kind}
                 {item.durable ? ' · saved in database' : ''}
