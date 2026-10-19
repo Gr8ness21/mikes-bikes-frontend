@@ -4,26 +4,41 @@ import type { GalleryItem } from '../types';
 
 type Props = {
   items: GalleryItem[];
+  leadOnce?: GalleryItem;
 };
 
-export default function GalleryCarousel({ items }: Props) {
+export default function GalleryCarousel({ items, leadOnce }: Props) {
   const [i, setI] = useState(0);
   const [lightbox, setLightbox] = useState(false);
-  const current = items[i];
+  const [leadDone, setLeadDone] = useState(!leadOnce);
+  const showingLead = Boolean(leadOnce && !leadDone);
+  const current = showingLead ? leadOnce : items[i];
   const photoIndexes = items.flatMap((item, idx) => (item.kind === 'image' ? [idx] : []));
 
   useEffect(() => {
     setI(0);
-  }, [items]);
+    setLeadDone(!leadOnce);
+  }, [items, leadOnce]);
 
   useEffect(() => {
-    if (items.length < 2 || lightbox) return;
+    if (showingLead || lightbox) return;
+    if (items.length < 2) return;
     if (current?.kind === 'video') return;
     const t = window.setInterval(() => setI((n) => (n + 1) % items.length), 7000);
     return () => window.clearInterval(t);
-  }, [items, current, lightbox]);
+  }, [items, current, lightbox, showingLead]);
+
+  function finishLead() {
+    setLeadDone(true);
+    setI(0);
+  }
 
   function go(delta: number) {
+    if (showingLead) {
+      finishLead();
+      return;
+    }
+    if (!items.length) return;
     setI((n) => (n + delta + items.length) % items.length);
   }
 
@@ -76,8 +91,8 @@ export default function GalleryCarousel({ items }: Props) {
               muted
               playsInline
               controls={false}
-              loop={items.length === 1}
-              onEnded={items.length > 1 ? () => go(1) : undefined}
+              loop={!showingLead && items.length === 1}
+              onEnded={showingLead || items.length > 1 ? () => go(1) : undefined}
               onError={() => go(1)}
             />
           ) : (

@@ -1,8 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import jointLogoDark from '../assets/JointLogoDark.mp4';
-import jointLogoLight from '../assets/JointLogoLight.mp4';
 
 const faqs: { q: string; a: ReactNode }[] = [
   {
@@ -25,9 +23,7 @@ const faqs: { q: string; a: ReactNode }[] = [
 ];
 
 export default function FaqCarousel() {
-  const { theme } = useTheme();
   const [i, setI] = useState(0);
-  const logoSrc = theme === 'light' ? jointLogoDark : jointLogoLight;
 
   useEffect(() => {
     const t = window.setInterval(() => setI((n) => (n + 1) % faqs.length), 8000);
@@ -39,7 +35,7 @@ export default function FaqCarousel() {
   return (
     <section className="faq-parallax" aria-labelledby="faq-title">
       <div className="faq-parallax-media" aria-hidden>
-        <video key={logoSrc} src={logoSrc} muted playsInline autoPlay loop />
+        <video src={jointLogoDark} muted playsInline autoPlay loop />
       </div>
       <div className="faq-inner card">
         <p className="kicker">FAQ</p>

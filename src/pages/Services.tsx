@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import FaqCarousel from '../components/FaqCarousel';
+import jointLogoDark from '../assets/JointLogoDark.mp4';
 
 export default function Services() {
   return (
@@ -13,6 +14,7 @@ export default function Services() {
       </div>
       <div className="services">
         <article className="service">
+          <video className="service-media" src={jointLogoDark} muted playsInline autoPlay loop aria-hidden />
           <h2>Emergency pickup</h2>
           <p>Share your current location, destination, and bike details. Get a price, then dispatch.</p>
           <Link className="btn btn-primary" to="/quote">
@@ -20,6 +22,7 @@ export default function Services() {
           </Link>
         </article>
         <article className="service">
+          <video className="service-media" src={jointLogoDark} muted playsInline autoPlay loop aria-hidden />
           <h2>Scheduled transport</h2>
           <p>Pick a future date. Open or enclosed. Half the payment is due before pickup starts.</p>
           <Link className="btn btn-primary" to="/quote">

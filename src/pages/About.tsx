@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import GalleryCarousel from '../components/GalleryCarousel';
 import PartnerForm from '../components/PartnerForm';
-import { withLeadReel } from '../brandMedia';
+import { leadReel } from '../brandMedia';
 import { useGallery } from '../hooks/useGallery';
 
 const reviews = [
@@ -67,7 +67,8 @@ export default function About() {
         </div>
       </div>
       <GalleryCarousel
-        items={withLeadReel(
+        leadOnce={leadReel}
+        items={
           aboutMedia.length
             ? aboutMedia
             : [
@@ -82,7 +83,7 @@ export default function About() {
                   order: 0,
                 },
               ]
-        )}
+        }
       />
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h2>Partner with us</h2>

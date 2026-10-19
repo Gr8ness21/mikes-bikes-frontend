@@ -5,21 +5,18 @@ import Calculator from '../components/Calculator';
 import MediaStage from '../components/MediaStage';
 import EmergencyModal from '../components/EmergencyModal';
 import PartnerModal from '../components/PartnerModal';
-import { mediaUrl } from '../api';
-import { withLeadReel } from '../brandMedia';
+import { leadReel } from '../brandMedia';
 import { useGallery } from '../hooks/useGallery';
+import jointLogoLight from '../assets/JointLogoLight.mp4';
 
 export default function Home() {
   const homeMedia = useGallery('home');
-  const stageMedia = withLeadReel(homeMedia);
   const [liveMedia, setLiveMedia] = useState(false);
-  const [coverBroken, setCoverBroken] = useState(false);
-  const cover = homeMedia[0];
 
   return (
     <>
       <section className={liveMedia ? 'hero has-media' : 'hero'}>
-        <MediaStage items={stageMedia} onActiveChange={setLiveMedia} />
+        <MediaStage items={homeMedia} leadOnce={leadReel} onActiveChange={setLiveMedia} />
         <div className="hero-inner">
           <p className="kicker">Emergency + Scheduled</p>
           <h1>MIKE'S BIKES</h1>
@@ -50,15 +47,7 @@ export default function Home() {
       <section className="section grid-2">
         <Calculator />
         <div className="card">
-          {cover && !coverBroken && cover.kind === 'video' ? (
-            <video src={mediaUrl(cover.url)} muted playsInline autoPlay loop onError={() => setCoverBroken(true)} />
-          ) : (
-            <img
-              src={cover && !coverBroken ? mediaUrl(cover.url) : '/brand/card-back.jpg'}
-              alt={cover?.alt || "We'll Come Get You! — Mike's Bikes"}
-              onError={() => setCoverBroken(true)}
-            />
-          )}
+          <video src={jointLogoLight} muted playsInline autoPlay loop aria-hidden />
           <h2 style={{ marginTop: '1rem' }}>Two ways we roll</h2>
           <p>Emergency pickup when you need a trailer now, or scheduled transport you can plan around.</p>
           <div className="cta-row" style={{ justifyContent: 'center', marginTop: '1rem' }}>

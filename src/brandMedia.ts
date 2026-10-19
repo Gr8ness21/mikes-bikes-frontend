@@ -11,7 +11,3 @@ export const leadReel: GalleryItem = {
   showOnAbout: true,
   order: -1,
 };
-
-export function withLeadReel(items: GalleryItem[]) {
-  return [leadReel, ...items.filter((item) => item._id !== leadReel._id)];
-}

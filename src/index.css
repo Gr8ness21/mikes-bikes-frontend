@@ -265,6 +265,16 @@ main {
   color: #fff;
 }
 
+:root[data-theme='light'] .service h2,
+:root[data-theme='light'] .service h3 {
+  color: #fff;
+}
+
+:root[data-theme='light'] .service p,
+:root[data-theme='light'] .service .muted {
+  color: #f2f2f2;
+}
+
 .phone {
   font-family: 'Oswald', sans-serif;
   font-size: clamp(1.8rem, 5vw, 3.6rem);
@@ -593,13 +603,38 @@ textarea {
 }
 
 .service {
+  position: relative;
+  overflow: hidden;
   min-height: 220px;
   padding: 1.4rem;
   border-radius: var(--radius);
-  background:
-    linear-gradient(#000000aa, #000000d4),
-    url('/brand/card-back.jpg') center / cover;
+  background: #000;
   border: 1px solid #ffffff22;
+}
+
+.service-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.service:not(.sub)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(#000000aa, #000000d4);
+  pointer-events: none;
+}
+
+.service > :not(.service-media) {
+  position: relative;
+  z-index: 2;
 }
 
 .service.sub {
@@ -759,14 +794,12 @@ td {
   position: absolute;
   inset: 0;
   z-index: 0;
-  display: grid;
-  place-items: center;
 }
 
 .faq-parallax-media video {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
 }
 
