@@ -87,14 +87,14 @@ export default function GalleryAdmin({ onMessage, onError }: Props) {
       <h2>
         Customer gallery
         <HelpTip label="Customer gallery">
-          The first five slots are Top 5. Photos and videos there are stored in the database so they
-          survive a Render redeploy. Use Up/Down to move keepers into those slots. Edit a caption
-          anytime and save it. Home = hero. About = On the road carousel.
+          Every upload is stored in the database so photos and videos survive a Render redeploy. The
+          first five slots are Top 5 (featured). Use Up/Down to set order. Edit a caption anytime
+          and save it. Home = hero. About = On the road carousel.
         </HelpTip>
       </h2>
       <p className="muted">
-        The first five rows are Top 5 and are saved in the database, including videos. Home uses
-        checked items as the hero background. About uses checked items in the parallax carousel.
+        All rows are saved in the database. The first five are Top 5. Home uses checked items as the
+        hero background. About uses checked items in the parallax carousel.
       </p>
       <form className="form" onSubmit={upload} style={{ marginTop: '1rem' }}>
         <label>
