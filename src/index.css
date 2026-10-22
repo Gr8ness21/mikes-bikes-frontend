@@ -596,6 +596,25 @@ textarea {
   font-family: 'Bebas Neue', sans-serif;
 }
 
+.promo-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.promo-price s {
+  color: #9a9a9a;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+
+.promo-price strong {
+  color: var(--crimson);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
+}
+
 .services {
   display: grid;
   grid-template-columns: 1fr 1fr;

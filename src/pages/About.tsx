@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import GalleryCarousel from '../components/GalleryCarousel';
 import PartnerForm from '../components/PartnerForm';
+import { PromoPrice } from '../components/AtlantaPromo';
 import { leadReel } from '../brandMedia';
 import { useGallery } from '../hooks/useGallery';
 
-const reviews = [
+const reviews: { name: string; quote: ReactNode }[] = [
   {
     name: 'Jordan P.',
     quote: 'Broke down outside the perimeter. Mike had a trailer on me faster than a rideshare.',
@@ -15,7 +16,11 @@ const reviews = [
   },
   {
     name: 'Chris D.',
-    quote: 'Used the I-285 flat rate to move a project bike across town. Seventy bucks. Done.',
+    quote: (
+      <>
+        Used the I-285 flat rate to move a project bike across town. <PromoPrice />. Done.
+      </>
+    ),
   },
 ];
 

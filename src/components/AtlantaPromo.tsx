@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
 
+export function PromoPrice() {
+  return (
+    <span className="promo-price">
+      <s>$70</s>
+      <strong>$60</strong>
+    </span>
+  );
+}
+
 export default function AtlantaPromo() {
   const [open, setOpen] = useState(false);
 
@@ -14,7 +23,7 @@ export default function AtlantaPromo() {
   if (!open) {
     return (
       <button className="btn btn-ghost" onClick={() => setOpen(true)}>
-        Atlanta $70 flat rate
+        Atlanta <PromoPrice /> flat rate
       </button>
     );
   }
@@ -26,7 +35,7 @@ export default function AtlantaPromo() {
         <h2 id="promo-title">Atlanta flat rate</h2>
         <p>
           If your pickup and drop-off are both inside the I-285 perimeter, your transport is a
-          flat <strong>$70</strong>.
+          flat <PromoPrice />.
         </p>
         <div className="cta-row" style={{ marginTop: '1rem' }}>
           <button
