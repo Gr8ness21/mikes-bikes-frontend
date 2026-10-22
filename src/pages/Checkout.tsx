@@ -8,7 +8,7 @@ import type { Booking } from '../types';
 const pk = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 const stripePromise = pk ? loadStripe(pk) : null;
 
-function PayForm({ bookingId }: { bookingId: string }) {
+function PayForm({ bookingId, scheduled }: { bookingId: string; scheduled: boolean }) {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ function PayForm({ bookingId }: { bookingId: string }) {
       <PaymentElement />
       {error && <p className="error">{error}</p>}
       <button className="btn btn-primary" disabled={busy || !stripe}>
-        {busy ? 'Processing…' : 'Pay 50% deposit'}
+        {busy ? 'Processing…' : scheduled ? 'Pay 50% deposit' : 'Pay in full'}
       </button>
     </form>
   );
@@ -102,8 +102,12 @@ export default function Checkout() {
 
   return (
     <section className="section">
-      <h1>Deposit checkout</h1>
-      <p className="muted">Pickup is not initiated until this half-payment succeeds.</p>
+      <h1>{booking?.serviceType === 'scheduled' ? 'Deposit checkout' : 'Pay in full'}</h1>
+      <p className="muted">
+        {booking?.serviceType === 'scheduled'
+          ? 'Pickup is not initiated until this 50% deposit succeeds.'
+          : 'The bike is not loaded until this payment succeeds in full.'}
+      </p>
       {booking && (
         <p className="quote-total">${booking.quote.depositDue.toFixed(2)} due now</p>
       )}
@@ -111,7 +115,7 @@ export default function Checkout() {
       {!ready && <p className="muted">Loading checkout…</p>}
       {ready && pk && stripePromise && clientSecret && (
         <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'night' } }}>
-          <PayForm bookingId={id} />
+          <PayForm bookingId={id} scheduled={booking?.serviceType === 'scheduled'} />
         </Elements>
       )}
       {ready && stripeConfigured && !clientSecret && (
@@ -123,11 +127,11 @@ export default function Checkout() {
           <p>
             Add <code>STRIPE_SECRET_KEY</code> in <code>backend/.env</code> and{' '}
             <code>VITE_STRIPE_PUBLISHABLE_KEY</code> in <code>frontend/.env</code>, then restart both
-            servers to collect a real 50% deposit.
+            servers to collect a real card payment.
           </p>
-          <p className="muted">Until then you can simulate the deposit so the rest of the booking flow works.</p>
+          <p className="muted">Until then you can simulate payment so the rest of the booking flow works.</p>
           <button className="btn btn-primary" disabled={busy} onClick={simulate}>
-            {busy ? 'Saving…' : 'Simulate 50% deposit'}
+            {busy ? 'Saving…' : booking?.serviceType === 'scheduled' ? 'Simulate 50% deposit' : 'Simulate payment'}
           </button>
         </div>
       )}

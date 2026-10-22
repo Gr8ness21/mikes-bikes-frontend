@@ -50,7 +50,9 @@ export default function EmergencyModal() {
               <>
                 <p className="kicker">Need a trailer now</p>
                 <h2 id="emergency-title">Emergency pickup</h2>
-                <p className="muted">Tell us where you are, the bike, and a callback number.</p>
+                <p className="muted">
+                  Tell us where you are, the bike, and a callback number.
+                </p>
                 <div style={{ marginTop: '1rem' }}>
                   <EmergencyForm onSuccess={() => setSent(true)} />
                 </div>

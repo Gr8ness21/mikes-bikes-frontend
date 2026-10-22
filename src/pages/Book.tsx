@@ -25,7 +25,7 @@ export default function Book() {
     return (
       <section className="section">
         <h1>Book this haul</h1>
-        <p>Log in or create an account to pay the 50% deposit and confirm.</p>
+        <p>Log in or create an account to pay and confirm.</p>
         <div className="cta-row" style={{ justifyContent: 'flex-start' }}>
           <Link className="btn btn-primary" to="/login" state={{ from: '/book' }}>
             Log in
@@ -89,7 +89,14 @@ export default function Book() {
           {quote.miles} miles · {quote.transportType} · {quote.serviceType}
         </p>
         <p className="quote-total">${quote.quote.total.toFixed(2)}</p>
-        <p>Deposit due now (50%): ${quote.quote.depositDue.toFixed(2)}</p>
+        <p>
+          {quote.serviceType === 'scheduled'
+            ? `Deposit due now (50%): $${quote.quote.depositDue.toFixed(2)}`
+            : `Due in full before load: $${quote.quote.depositDue.toFixed(2)}`}
+        </p>
+        {quote.serviceType === 'emergency' && quote.insideI285 && (
+          <p className="note-404">$10 off for cash transactions on emergency pickups inside I-285.</p>
+        )}
         {quote.quote.discount404 > 0 && (
           <p className="note-404">404 discount applied (−${quote.quote.discount404.toFixed(2)})</p>
         )}
@@ -106,7 +113,7 @@ export default function Book() {
         </label>
         {error && <p className="error">{error}</p>}
         <button className="btn btn-primary" disabled={loading} onClick={submit} style={{ marginTop: '1rem' }}>
-          {loading ? 'Creating…' : 'Pay deposit'}
+          {loading ? 'Creating…' : quote.serviceType === 'scheduled' ? 'Pay deposit' : 'Pay in full'}
         </button>
       </div>
     </section>

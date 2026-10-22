@@ -16,7 +16,10 @@ export default function Services() {
         <article className="service">
           <video className="service-media" src={jointLogoDark} muted playsInline autoPlay loop aria-hidden />
           <h2>Emergency pickup</h2>
-          <p>Share your current location, destination, and bike details. Get a price, then dispatch.</p>
+          <p>
+            Share your current location, destination, and bike details. Pay in full before the bike
+            is loaded. Inside I-285: $10 off for cash.
+          </p>
           <Link className="btn btn-primary" to="/quote">
             Request emergency
           </Link>

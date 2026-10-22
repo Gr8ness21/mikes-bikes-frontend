@@ -169,6 +169,7 @@ export default function EmergencyForm({ onSuccess }: Props) {
         What happened?
         <textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
       </label>
+      <p className="note-404">Inside I-285: $10 off for cash transactions.</p>
       {msg && <p className="error">{msg}</p>}
       <button className="btn btn-emergency" disabled={busy}>
         {busy ? 'Sending…' : 'Request emergency pickup'}

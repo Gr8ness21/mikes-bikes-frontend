@@ -226,6 +226,9 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
             <option value="scheduled">Scheduled transport</option>
           </select>
         </label>
+        {serviceType === 'emergency' && (
+          <p className="note-404">Inside I-285: $10 off for cash transactions.</p>
+        )}
         <AddressFields
           id="pickup"
           title="Pickup Location | Where Is The Bike"
@@ -363,7 +366,14 @@ export default function Calculator({ defaultService = 'scheduled' }: Props) {
             {result.insideI285 ? ' · inside I-285 promo' : ''}
           </p>
           <p className="quote-total">${result.quote.total.toFixed(2)}</p>
-          <p className="muted">50% deposit due now: ${result.quote.depositDue.toFixed(2)}</p>
+          <p className="muted">
+            {serviceType === 'scheduled'
+              ? `50% deposit due now: $${result.quote.depositDue.toFixed(2)}`
+              : `Due in full before load: $${result.quote.depositDue.toFixed(2)}`}
+          </p>
+          {serviceType === 'emergency' && result.insideI285 && (
+            <p className="note-404">$10 off for cash transactions on emergency pickups inside I-285.</p>
+          )}
           {result.quote.discount404 > 0 && (
             <p className="note-404">404 discount: −${result.quote.discount404.toFixed(2)}</p>
           )}

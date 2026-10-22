@@ -34,8 +34,11 @@ export default function AtlantaPromo() {
         <p className="kicker">Inside I-285</p>
         <h2 id="promo-title">Atlanta flat rate</h2>
         <p>
-          If your pickup and drop-off are both inside the I-285 perimeter, your transport is a
-          flat <PromoPrice />.
+          If your pickup and drop-off are both inside the I-285 perimeter,
+           <br /> This fall season, your transport is a
+          flat <PromoPrice />. 
+          <br />
+          Paying Cash? An additional $10 off!
         </p>
         <div className="cta-row" style={{ marginTop: '1rem' }}>
           <button
