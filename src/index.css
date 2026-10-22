@@ -1100,12 +1100,11 @@ td {
   inset: 0;
   z-index: 200;
   background: #000;
-  cursor: pointer;
   overflow: hidden;
-  touch-action: none;
   user-select: none;
   display: grid;
   place-items: center;
+  pointer-events: none;
 }
 
 .intro-gate video {

@@ -24,7 +24,6 @@
         display: grid;
         place-items: center;
         overflow: hidden;
-        touch-action: none;
       }
       #intro-gate video {
         width: min(420px, 72vmin);
@@ -32,27 +31,14 @@
         object-fit: contain;
         pointer-events: none;
       }
-      #intro-gate .intro-gate-hint {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 9%;
-        margin: 0;
-        text-align: center;
-        font-family: 'Bebas Neue', Impact, sans-serif;
-        letter-spacing: 0.42em;
-        text-transform: uppercase;
-        color: #fff;
-      }
     </style>
   </head>
   <body>
-    <div id="intro-gate" class="intro-gate" role="button" tabindex="0" aria-label="Swipe to enter Mike's Bikes">
+    <div id="intro-gate" class="intro-gate" aria-hidden="true">
       <video
         id="intro-video"
         autoplay
         muted
-        loop
         playsinline
         webkit-playsinline
         preload="auto"
@@ -60,7 +46,6 @@
       >
         <source src="/intro.mp4" type="video/mp4" />
       </video>
-      <p class="intro-gate-hint">Swipe to enter</p>
     </div>
     <div id="root"></div>
     <script>

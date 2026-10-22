@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 function kickPlay(video: HTMLVideoElement) {
   video.muted = true;
   video.defaultMuted = true;
-  video.loop = true;
+  video.loop = false;
   video.playsInline = true;
   video.setAttribute('muted', '');
   video.setAttribute('playsinline', '');
@@ -18,77 +18,59 @@ export default function IntroGate() {
     if (!gate) return;
 
     document.body.style.overflow = 'hidden';
-    if (video) kickPlay(video);
-
-    let start: { x: number; y: number } | null = null;
     let leaving = false;
+    let fallback: number | undefined;
 
     const enter = () => {
       if (leaving) return;
       leaving = true;
+      if (fallback) window.clearTimeout(fallback);
       gate.classList.add('is-wiping');
     };
 
-    const onKey = (e: KeyboardEvent) => {
-      if (leaving || !document.body.contains(gate)) return;
-      const target = e.target as HTMLElement | null;
-      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
-        e.preventDefault();
-        enter();
-      }
+    const armFallback = () => {
+      if (fallback) window.clearTimeout(fallback);
+      const ms = video && Number.isFinite(video.duration) && video.duration > 0
+        ? Math.ceil(video.duration * 1000) + 400
+        : 3500;
+      fallback = window.setTimeout(enter, ms);
     };
 
-    const onPointerDown = (e: PointerEvent) => {
-      start = { x: e.clientX, y: e.clientY };
-      if (video) kickPlay(video);
-    };
-
-    const onPointerUp = (e: PointerEvent) => {
-      const from = start;
-      start = null;
-      if (!from) {
-        enter();
-        return;
-      }
-      const moved = Math.hypot(e.clientX - from.x, e.clientY - from.y) > 36;
-      const tap = Math.hypot(e.clientX - from.x, e.clientY - from.y) < 12;
-      if (moved || tap) enter();
-    };
-
-    const onCancel = () => {
-      start = null;
-    };
+    if (video) {
+      video.loop = false;
+      video.removeAttribute('loop');
+      kickPlay(video);
+      video.addEventListener('loadeddata', () => kickPlay(video));
+      video.addEventListener('canplay', () => {
+        kickPlay(video);
+        armFallback();
+      });
+      video.addEventListener('ended', enter);
+      armFallback();
+    } else {
+      armFallback();
+    }
 
     const onVis = () => {
-      if (document.visibilityState === 'visible' && video) kickPlay(video);
+      if (document.visibilityState === 'visible' && video && !leaving) kickPlay(video);
     };
 
     const onAnimEnd = () => {
       if (!gate.classList.contains('is-wiping')) return;
       gate.remove();
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKey);
     };
 
-    gate.addEventListener('pointerdown', onPointerDown);
-    gate.addEventListener('pointerup', onPointerUp);
-    gate.addEventListener('pointercancel', onCancel);
     gate.addEventListener('animationend', onAnimEnd);
-    window.addEventListener('keydown', onKey);
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('pageshow', onVis);
-    video?.addEventListener('loadeddata', () => kickPlay(video));
-    video?.addEventListener('canplay', () => kickPlay(video));
 
     return () => {
-      window.removeEventListener('keydown', onKey);
+      if (fallback) window.clearTimeout(fallback);
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('pageshow', onVis);
-      gate.removeEventListener('pointerdown', onPointerDown);
-      gate.removeEventListener('pointerup', onPointerUp);
-      gate.removeEventListener('pointercancel', onCancel);
       gate.removeEventListener('animationend', onAnimEnd);
+      video?.removeEventListener('ended', enter);
     };
   }, []);
 
