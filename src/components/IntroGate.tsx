@@ -36,6 +36,12 @@ export default function IntroGate() {
       fallback = window.setTimeout(enter, ms);
     };
 
+    const bar = document.getElementById('intro-progress-bar') as HTMLElement | null;
+    const onTime = () => {
+      if (!bar || !video?.duration) return;
+      bar.style.width = `${Math.min(100, (100 * video.currentTime) / video.duration)}%`;
+    };
+
     if (video) {
       video.loop = false;
       video.removeAttribute('loop');
@@ -45,6 +51,7 @@ export default function IntroGate() {
         kickPlay(video);
         armFallback();
       });
+      video.addEventListener('timeupdate', onTime);
       video.addEventListener('ended', enter);
       armFallback();
     } else {
@@ -71,6 +78,7 @@ export default function IntroGate() {
       window.removeEventListener('pageshow', onVis);
       gate.removeEventListener('animationend', onAnimEnd);
       video?.removeEventListener('ended', enter);
+      video?.removeEventListener('timeupdate', onTime);
     };
   }, []);
 

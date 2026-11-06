@@ -792,7 +792,28 @@ td {
 }
 
 .modal {
+  position: relative;
   width: min(560px, 100%);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.65rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+:root[data-theme='light'] .modal-close {
+  color: #111;
 }
 
 .modal-wide {
@@ -1138,6 +1159,24 @@ td {
 .intro-gate video::-webkit-media-controls-start-playback-button {
   display: none !important;
   -webkit-appearance: none;
+}
+
+.intro-progress {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 10%;
+  height: 3px;
+  border-radius: 99px;
+  background: #ffffff22;
+  overflow: hidden;
+}
+
+.intro-progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--crimson);
 }
 
 .intro-gate-hint {

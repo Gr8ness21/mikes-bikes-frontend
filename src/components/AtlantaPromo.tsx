@@ -20,6 +20,11 @@ export default function AtlantaPromo() {
     }
   }, []);
 
+  function close() {
+    sessionStorage.setItem('mb_promo', '1');
+    setOpen(false);
+  }
+
   if (!open) {
     return (
       <button className="btn btn-ghost" onClick={() => setOpen(true)}>
@@ -29,8 +34,16 @@ export default function AtlantaPromo() {
   }
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-labelledby="promo-title">
-      <div className="card modal promo">
+    <div
+      className="modal-backdrop"
+      role="dialog"
+      aria-labelledby="promo-title"
+      onClick={close}
+    >
+      <div className="card modal promo" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="modal-close" aria-label="Close" onClick={close}>
+          ×
+        </button>
         <p className="kicker">Inside I-285</p>
         <h2 id="promo-title">Atlanta flat rate</h2>
         <p>
@@ -41,13 +54,7 @@ export default function AtlantaPromo() {
           Paying Cash? An additional $10 off!
         </p>
         <div className="cta-row" style={{ marginTop: '1rem' }}>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              sessionStorage.setItem('mb_promo', '1');
-              setOpen(false);
-            }}
-          >
+          <button className="btn btn-primary" onClick={close}>
             Let's ride
           </button>
         </div>
